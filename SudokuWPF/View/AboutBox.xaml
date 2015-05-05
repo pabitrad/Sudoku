@@ -1,0 +1,48 @@
+﻿<!--
+    Copyright (c) 2014 Han Hung
+
+    This program is free software; it is distributed under the terms
+    of the GNU General Public License v3 as published by the Free
+    Software Foundation.
+
+    http://www.gnu.org/licenses/gpl-3.0.html
+-->
+<Window x:Class="SudokuWPF.View.AboutBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About Sudoku WPF"
+        Height="250"
+        Width="350"
+        WindowStartupLocation="CenterOwner" 
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        SizeToContent="Height">
+
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="TextAlignment" Value="Center" />
+        </Style>
+    </Window.Resources>
+
+
+    <StackPanel>
+        <TextBlock FontSize="24"
+                   Padding="10"
+                   Text="Sudoku WPF" />
+        <TextBlock Text="Written by Han Hung" />
+        <TextBlock Text="Copyright (c) 2014 Han Hung" />
+        <TextBlock TextWrapping="Wrap"  
+                   Margin="10"
+                   Text="This software is copyrighted and released under the GNU General Public License v3." />
+
+        <Button Content="OK"
+                Width="75"
+                Margin="10"
+                Click="OKButton_Click" />
+    </StackPanel>
+</Window>

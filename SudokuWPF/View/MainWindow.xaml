@@ -1,0 +1,770 @@
+﻿<!--
+    Copyright (c) 2014 Han Hung
+
+    This program is free software; it is distributed under the terms
+    of the GNU General Public License v3 as published by the Free
+    Software Foundation.
+
+    http://www.gnu.org/licenses/gpl-3.0.html
+-->
+<Window x:Class="SudokuWPF.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib" 
+        xmlns:srcVM="clr-namespace:SudokuWPF.ViewModel"
+        xmlns:srcVME="clr-namespace:SudokuWPF.ViewModel.Enums"
+        xmlns:srcME="clr-namespace:SudokuWPF.Model.Enums"
+        xmlns:srcMS="clr-namespace:SudokuWPF.Model.Structures"
+        Title="Sudoku Game"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        Closing="Window_Closing">
+
+    <Window.Resources>
+        <Style x:Key="BorderStyle"
+               TargetType="Border">
+            <Setter Property="BorderBrush" Value="Gray" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+
+        <Style x:Key="MiniBorderStyle"
+               TargetType="Border"
+               BasedOn="{StaticResource BorderStyle}">
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Grid.ColumnSpan" Value="3" />
+            <Setter Property="Grid.RowSpan" Value="3" />
+            <Setter Property="Height" Value="134" />
+            <Setter Property="Width" Value="134" />
+        </Style>
+
+        <Style x:Key="MiniBorderBlueStyle"
+               TargetType="Border"
+               BasedOn="{StaticResource MiniBorderStyle}">
+            <Setter Property="Background" Value="AliceBlue" />
+        </Style>
+
+        <Style x:Key="BarBaseStyle"
+               TargetType="Rectangle">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="0,0,0,0" />
+            <Setter Property="Stroke" Value="Gray" />
+        </Style>
+
+        <Style x:Key="HorizontalBars"
+               TargetType="Rectangle"
+               BasedOn="{StaticResource BarBaseStyle}">
+            <Setter Property="Grid.ColumnSpan" Value="3"/>
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Width" Value="134" />
+        </Style>
+
+        <Style x:Key="VerticalBars"
+               TargetType="Rectangle"
+               BasedOn="{StaticResource BarBaseStyle}">
+            <Setter Property="Grid.RowSpan" Value="3"/>
+            <Setter Property="Height" Value="134"/>
+            <Setter Property="Width" Value="1" />
+        </Style>
+
+        <Style x:Key="ButtonBaseStyle"
+               TargetType="Button">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Width" Value="70" />
+            <Setter Property="Height" Value="30" />
+        </Style>
+
+        <Style x:Key="CheckboxBaseStyle"
+               TargetType="CheckBox">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Height" Value="21" />
+            <Setter Property="Width" Value="110" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=IsEnableGameControls, Mode=OneWay}" Value="True">
+                    <Setter Property="IsEnabled" Value="True" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=IsEnableGameControls, Mode=OneWay}" Value="False">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <ObjectDataProvider x:Key="GameLevels"
+                            ObjectType="{x:Type sys:Enum}"
+                            MethodName="GetValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="srcME:DifficultyLevels" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <Style x:Key="StartButtonStyle"
+               TargetType="Button"               
+               BasedOn="{StaticResource ButtonBaseStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=StartButtonState, Mode=OneWay}" Value="Start">
+                    <Setter Property="Content" Value="Start Game"/>
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=StartButtonState, Mode=OneWay}" Value="Pause">
+                    <Setter Property="Content" Value="Pause Game"/>
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=StartButtonState, Mode=OneWay}" Value="Resume">
+                    <Setter Property="Content" Value="Resume Game"/>
+                    <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=StartButtonState, Mode=OneWay}" Value="Disable">
+                    <Setter Property="Content" Value="Start Game"/>
+                    <Setter Property="IsEnabled" Value="False"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="EnableGameButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource ButtonBaseStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=IsEnableGameControls, Mode=OneWay}" Value="True">
+                    <Setter Property="IsEnabled" Value="True" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=IsEnableGameControls, Mode=OneWay}" Value="False">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="GameGridStyle"
+               TargetType="Grid">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="10,10,0,0" />
+            <Setter Property="Height" Value="402" />
+            <Setter Property="Width" Value="402" />
+            <Setter Property="Panel.ZIndex" Value="2" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=IsShowGameGrid, Mode=OneWay}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=IsShowGameGrid, Mode=OneWay}" Value="False">
+                    <Setter Property="Visibility" Value="Hidden" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CellStyle"
+               TargetType="TextBlock">
+            <Setter Property="Height" Value="39"/>
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Width" Value="34" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="IsEnabled" Value="True" />
+            <Setter Property="Visibility" Value="Visible" />
+            <Setter Property="Grid.Row" Value="0" />
+            <Setter Property="Grid.Column" Value="0" />
+            <Setter Property="Grid.ColumnSpan" Value="3" />
+            <Setter Property="Grid.RowSpan" Value="3" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseDirectlyOver" Value="True">
+                    <Setter Property="Background" Value="LightBlue" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="NoteCellStyle"
+               TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="9" />
+            <Setter Property="Visibility" Value="Hidden" />
+            <Setter Property="Foreground" Value="Black" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseDirectlyOver" Value="True">
+                    <Setter Property="Background" Value="LightBlue" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <DataTemplate x:Key="CellDataTemplate"
+                      DataType="{x:Type srcMS:CellClass}">
+            <Grid x:Name="CellGrid"
+                  Margin="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="Cell" 
+                           Style="{StaticResource CellStyle}"/>
+                <TextBlock x:Name="Note1"
+                           Text="{Binding Path=Notes[0].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="0"
+                           Grid.Row="0"/>
+                <TextBlock x:Name="Note2"
+                           Text="{Binding Path=Notes[1].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="1"
+                           Grid.Row="0"/>
+                <TextBlock x:Name="Note3"
+                           Text="{Binding Path=Notes[2].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="2"
+                           Grid.Row="0"/>
+                <TextBlock x:Name="Note4"
+                           Text="{Binding Path=Notes[3].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="0"
+                           Grid.Row="1"/>
+                <TextBlock x:Name="Note5"
+                           Text="{Binding Path=Notes[4].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="1"
+                           Grid.Row="1"/>
+                <TextBlock x:Name="Note6"
+                           Text="{Binding Path=Notes[5].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="2"
+                           Grid.Row="1"/>
+                <TextBlock x:Name="Note7"
+                           Text="{Binding Path=Notes[6].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="0"
+                           Grid.Row="2"/>
+                <TextBlock x:Name="Note8"
+                           Text="{Binding Path=Notes[7].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="1"
+                           Grid.Row="2"/>
+                <TextBlock x:Name="Note9"
+                           Text="{Binding Path=Notes[8].Value, Mode=OneWay}"
+                           Style="{StaticResource NoteCellStyle}"
+                           Grid.Column="2"
+                           Grid.Row="2"/>
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Path=CellState}" Value="Answer">
+                    <Setter Property="Text" Value="{Binding Path=Answer, Mode=OneWay}" TargetName="Cell"/>
+                    <Setter Property="IsEnabled" Value="False" TargetName="Cell"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=CellState}" Value="Hint">
+                    <Setter Property="Text" Value="{Binding Path=Answer, Mode=OneWay}" TargetName="Cell"/>
+                    <Setter Property="Foreground" Value="BlueViolet" TargetName="Cell"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=CellState}" Value="Blank">
+                    <Setter Property="Text" Value=" " TargetName="Cell"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=CellState}" Value="UserInputCorrect" >
+                    <Setter Property="Text" Value="{Binding Path=UserAnswer, Mode=OneWay}" TargetName="Cell"/>
+                    <Setter Property="Foreground" Value="DarkGreen" TargetName="Cell"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=CellState}" Value="UserInputIncorrect" >
+                    <Setter Property="Text" Value="{Binding Path=UserAnswer, Mode=OneWay}" TargetName="Cell"/>
+                    <Setter Property="Foreground" Value="DarkRed" TargetName="Cell"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=CellState}" Value="Notes">
+                    <Setter Property="Margin" Value="5" TargetName="CellGrid" />
+                    <Setter Property="Visibility" Value="Hidden" TargetName="Cell" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note1" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note2" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note3" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note4" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note5" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note6" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note7" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note8" />
+                    <Setter Property="Visibility" Value="Visible" TargetName="Note9" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Canvas Margin="0,0,0,0"            
+            Height="570"
+            Width="850">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="200" />
+            </Grid.ColumnDefinitions>
+            <WrapPanel Grid.Row="0" Grid.Column="0">
+                <Label Content="Let's Play" FontSize="40" FontStyle="Italic"></Label>
+                <Label Content="SUDOKU" FontSize="40" FontWeight="Bold"></Label>
+
+                <Grid Width="170" Height="150" Margin="20, 10, 0, 0" ShowGridLines="False">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Button>1</Button>
+                    <Button Grid.Column="1">2</Button>
+                    <Button Grid.Column="2">3</Button>
+                    <Button Grid.Row="1">4</Button>
+                    <Button Grid.Column="1" Grid.Row="1">5</Button>
+                    <Button Grid.Column="2" Grid.Row="1">6</Button>
+                    <Button Grid.Row="2">7</Button>
+                    <Button Grid.Column="1" Grid.Row="2">8</Button>
+                    <Button Grid.Column="2" Grid.Row="2">9</Button>
+                </Grid>
+                <Button Content="REMOVE"
+                  Style="{StaticResource StartButtonStyle}"
+                  Margin="20, 0, 0, 0" Width="170"/>
+                
+                <Label Content="INPUT CONTROL" FontWeight="Bold" FontSize="20" Margin="20,20, 0, 0" Foreground="Red"></Label>
+                <Label FontWeight="Bold" FontSize="15" Margin="20,0, 0, 0" Foreground="Red" Height="154">
+                    <TextBlock Text="To place an input on the game board, click on this panel and then click on the place on the board where you want to place your number" TextWrapping="Wrap" ></TextBlock>
+                </Label>
+            </WrapPanel>
+            
+            <Grid  Grid.Row="0" Grid.Column="1" Style="{StaticResource GameGridStyle}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0"
+                  Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderBlueStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell00, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="A0_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell10, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="B0_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell20, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="C0_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell01, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="A1_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell11, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="B1_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell21, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="C1_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell02, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="A2_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell12, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="B2_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell22, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="C2_MouseLeftButtonDown" />
+                </Grid>
+
+                <Grid Grid.Row="0"
+                  Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell30, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="D0_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell40, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="E0_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell50, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="F0_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell31, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="D1_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell41, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="E1_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell51, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="F1_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell32, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="D2_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell42, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="E2_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell52, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="F2_MouseLeftButtonDown" />
+
+                </Grid>
+
+                <Grid Grid.Row="0"
+                  Grid.Column="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderBlueStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell60, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="G0_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell70, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="H0_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell80, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="I0_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell61, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="G1_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell71, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="H1_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell81, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="I1_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell62, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="G2_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell72, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="H2_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell82, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="I2_MouseLeftButtonDown" />
+                </Grid>
+
+                <Grid Grid.Row="1"
+                  Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell03, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="A3_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell13, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="B3_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell23, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="C3_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell04, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="A4_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell14, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="B4_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell24, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="C4_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell05, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="A5_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell15, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="B5_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell25, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="C5_MouseLeftButtonDown" />
+                </Grid>
+
+                <Grid Grid.Row="1"
+                  Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderBlueStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell33, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="D3_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell43, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="E3_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell53, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="F3_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell34, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="D4_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell44, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="E4_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell54, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="F4_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell35, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="D5_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell45, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="E5_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell55, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="F5_MouseLeftButtonDown" />
+                </Grid>
+
+                <Grid Grid.Row="1"
+                  Grid.Column="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell63, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="G3_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell73, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="H3_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell83, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="I3_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell64, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="G4_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell74, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="H4_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell84, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="I4_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell65, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="G5_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell75, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="H5_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell85, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="I5_MouseLeftButtonDown" />
+
+                </Grid>
+
+                <Grid Grid.Row="2"
+                  Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderBlueStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell06, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="A6_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell16, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="B6_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell26, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="C6_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell07, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="A7_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell17, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="B7_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell27, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="C7_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell08, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="A8_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell18, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="B8_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell28, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="C8_MouseLeftButtonDown" />
+
+                </Grid>
+
+                <Grid Grid.Row="2"
+                  Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell36, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="D6_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell46, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="E6_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell56, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="F6_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell37, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="D7_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell47, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="E7_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell57, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="F7_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell38, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="D8_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell48, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="E8_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell58, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="F8_MouseLeftButtonDown" />
+
+                </Grid>
+
+                <Grid Grid.Row="2"
+                  Grid.Column="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource MiniBorderBlueStyle}" />
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="1"/>
+                    <Rectangle Style="{StaticResource HorizontalBars}" Grid.Row="2"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="1"/>
+                    <Rectangle Style="{StaticResource VerticalBars}" Grid.Column="2"/>
+
+                    <ContentControl Content="{Binding Path=Cell66, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="0" MouseLeftButtonDown="G6_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell76, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="0" MouseLeftButtonDown="H6_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell86, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="0" MouseLeftButtonDown="I6_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell67, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="1" MouseLeftButtonDown="G7_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell77, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="1" MouseLeftButtonDown="H7_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell87, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="1" MouseLeftButtonDown="I7_MouseLeftButtonDown" />
+
+                    <ContentControl Content="{Binding Path=Cell68, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="0" Grid.Row="2" MouseLeftButtonDown="G8_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell78, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="1" Grid.Row="2" MouseLeftButtonDown="H8_MouseLeftButtonDown" />
+                    <ContentControl Content="{Binding Path=Cell88, Mode=OneWay}" ContentTemplate="{StaticResource CellDataTemplate}" Grid.Column="2" Grid.Row="2" MouseLeftButtonDown="I8_MouseLeftButtonDown" />
+                </Grid>
+            </Grid>
+            <WrapPanel Grid.Row="0" Grid.Column="2" Margin="0,0,-33,0">
+              <!--<Label Content="Difficulty Level:"
+               Height="27" 
+               VerticalAlignment="Top" 
+               Width="140"
+               />
+                <ComboBox HorizontalAlignment="Left" 
+                  Width="140"
+                  ItemsSource="{Binding Source={StaticResource GameLevels}}"
+                  SelectedItem="{Binding GameLevel}"
+                  IsEditable="False"
+                  IsReadOnly="True"
+                  />-->
+               <TextBox Text="ENTER YOUR NAME" Width="160" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="Red" Margin="10, 20, 0, 0"></TextBox>
+               <!--<Label HorizontalAlignment="Left"
+               Height="39" 
+               VerticalAlignment="Top"
+               Width="140"
+               Content="{Binding Path=ElapsedTime, Mode=OneWay}" />-->
+                <Button Content="START"
+                  Style="{StaticResource StartButtonStyle}"
+                  Click="btnStart_Click" Margin="20, 10, 0, 0"/>
+
+                <Button Content="NEW GAME" 
+                  Style="{StaticResource ButtonBaseStyle}"
+                  Click="btnNew_Click" Margin="10, 10, 0, 0"/>
+
+                <Button Content="UNDO" 
+                  Style="{StaticResource ButtonBaseStyle}"
+                  Margin="20, 10, 0, 0"/>
+
+                <Button Content="RESET"
+                Style="{StaticResource EnableGameButtonStyle}"
+                Click="btnReset_Click" Margin="10, 10, 0, 0"/>
+
+                <Button Content="LAST GAME"
+                Style="{StaticResource EnableGameButtonStyle}"
+                Width="145"
+                Margin="20, 10, 0, 0"/>
+
+                <Label Content="LEVEL OF DIFFICULTY" Width="145" HorizontalContentAlignment="Center" Foreground="Brown" Background="LightGray" Margin="20, 10, 0, 0">
+                </Label>
+
+                <Button Content="BEGINER"
+                Style="{StaticResource EnableGameButtonStyle}"
+                Width="145"
+                Margin="20, 10, 0, 0"/>
+
+                <Button Content="MODERATE"
+                Style="{StaticResource EnableGameButtonStyle}"
+                Width="145"
+                Margin="20, 10, 0, 0"/>
+
+                <Button Content="ADVANCE"
+                Style="{StaticResource EnableGameButtonStyle}"
+                Width="145"
+                Margin="20, 10, 0, 0"/>
+
+                <Label Content="PICK A SET TO PLAY" Width="150" HorizontalContentAlignment="Center" Background="LightGray" Foreground="Brown" Margin="20, 10, 0, 0">
+                </Label>
+
+                <Grid Width="200" Height="150" Margin="20, 10, 0, 0" ShowGridLines="False">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Button>01</Button>
+                    <Button Grid.Column="1">02</Button>
+                    <Button Grid.Column="2">03</Button>
+                    <Button Grid.Column="3">04</Button>
+                    <Button Grid.Column="4">05</Button>
+                    
+                    <Button Grid.Row="1">06</Button>
+                    <Button Grid.Column="1" Grid.Row="1">07</Button>
+                    <Button Grid.Column="2" Grid.Row="1">08</Button>
+                    <Button Grid.Column="3" Grid.Row="1">09</Button>
+                    <Button Grid.Column="4" Grid.Row="1">10</Button>
+
+                    <Button Grid.Row="2">11</Button>
+                    <Button Grid.Column="1" Grid.Row="2">12</Button>
+                    <Button Grid.Column="2" Grid.Row="2">13</Button>
+                    <Button Grid.Column="3" Grid.Row="2">14</Button>
+                    <Button Grid.Column="4" Grid.Row="2">15</Button>
+
+                    <Button Grid.Row="3">16</Button>
+                    <Button Grid.Column="1" Grid.Row="3">17</Button>
+                    <Button Grid.Column="2" Grid.Row="3">18</Button>
+                    <Button Grid.Column="3" Grid.Row="3">19</Button>
+                    <Button Grid.Column="4" Grid.Row="3">20</Button>
+
+                </Grid>
+                <Button Content="SHOW ANSWER"
+                Style="{StaticResource EnableGameButtonStyle}"
+                Width="145"
+                Margin="20, 10, 0, 0"/>
+
+                <!--<Button Content="About Sudoku WPF"
+                Style="{StaticResource ButtonBaseStyle}"
+                Click="btnAbout_Click"/>
+                <Button Content="Close" 
+                Style="{StaticResource ButtonBaseStyle}"
+                Click="btnClose_Click"/>-->
+            </WrapPanel>
+
+            <!--<CheckBox Style="{StaticResource CheckboxBaseStyle}"
+                  IsChecked="{Binding Path=IsEnterNotes}"
+                  Content="Enter Notes" 
+                  Margin="23,420,0,0" />
+            <CheckBox Style="{StaticResource CheckboxBaseStyle}"
+                  IsChecked="{Binding Path=IsShowSolution}"
+                  Content="Show Solution"
+                  Margin="157,420,0,0" />
+            <CheckBox Style="{StaticResource CheckboxBaseStyle}"
+                  IsChecked="{Binding Path=IsShowNotes}"
+                  Content="Show Notes"
+                  Margin="300,420,0,0"/>-->
+        </Grid>
+    </Canvas>
+</Window>
