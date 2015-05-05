@@ -103,6 +103,7 @@
     <Compile Include="Model\Structures\CellIndex.cs" />
     <Compile Include="Model\Structures\CellState.cs" />
     <Compile Include="Model\Structures\NoteState.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="ViewModel\Common.cs" />
     <Compile Include="ViewModel\CustomEventArgs\GameGeneratorEventArgs.cs" />
     <Compile Include="ViewModel\CustomEventArgs\GameManagerEventArgs.cs" />
@@ -160,7 +161,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="ViewModel\App.config" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -34,6 +34,7 @@ namespace SudokuWPF.ViewModel
         private static object _lock = new object();
         private static ViewModelClass _instance;
 
+        private const string DATABASE_PATH = @"C:\\Database\\Game Set\\";
 
         private GameTimer _timer;
         private GamesManager _games;
@@ -1069,6 +1070,10 @@ namespace SudokuWPF.ViewModel
             return _instance;                               // Return a pointer to the instance
         }
 
+        public void loadSet(string setNumber)
+        {
+
+        }
         #endregion
 
         #region . Methods: View Form event methods .
@@ -1086,6 +1091,7 @@ namespace SudokuWPF.ViewModel
         /// </summary>
         internal void NewClicked()
         {
+            EnableGameControls(true, true);                         // Show the game controls and show the grid
             LoadNewGame();
         }
 
@@ -1128,7 +1134,7 @@ namespace SudokuWPF.ViewModel
         /// <param name="row">Row of the cell where the click event happened.</param>
         internal void CellClicked(Int32 col, Int32 row)
         {
-            ProcessCellClick(col, row);
+            //ProcessCellClick(col, row);
         }
 
         #endregion
@@ -1145,7 +1151,7 @@ namespace SudokuWPF.ViewModel
             _games.GamesManagerEvent += GamesManagerEventHandler;   // Set the event handler
             PuzzleComplete = false;                                 // Clear some flags
             GameInProgress = false;
-            StartButtonState = StartButtonStateEnum.Disable;        // Set the initial start button state to disabled
+            //StartButtonState = StartButtonStateEnum.Disable;        // Set the initial start button state to disabled
             EnableGameControls(false, false);                       // Disable the game controls and hide the grid
             _model = new GameModel(null);                           // Initialize the model with null
             LoadSettings();                                         // Load settings
@@ -1205,10 +1211,10 @@ namespace SudokuWPF.ViewModel
             }
             else
             {                                                       // No game in progress
-                EnableGameControls(false, false);                   // Disable the game controls and hide the grid
+                //EnableGameControls(false, false);                   // Disable the game controls and hide the grid
                 StatusMessage = "";                                 // Clear the status box
                 ElapsedTime = "";                                   // Clear the elapsed time display
-                GetNewGame();                                       // Load a new game
+                //GetNewGame();                                       // Load a new game
             }
         }
 
@@ -1233,13 +1239,18 @@ namespace SudokuWPF.ViewModel
             }
         }
 
+        private void GetNewGame(string setFile)
+        {
+            _model = new GameModel(_games.GetGame(GameLevel), setFile);
+            StartButtonState = StartButtonStateEnum.Start;      // Set the start button state to Start
+        }
         private void GetNewGame()
         {
             if (_games.GameCount(GameLevel) > 0)                    // Are there games available? 
             {
                 _model = new GameModel(_games.GetGame(GameLevel));  // Yes, load a game in the model class
                 StartButtonState = StartButtonStateEnum.Start;      // Set the start button state to Start
-                StatusMessage = "New game loaded.  Click 'Start Game' button to begin.";
+                //StatusMessage = "New game loaded.  Click 'Start Game' button to begin.";
             }
             else                                                    // No games available, tell user.
                 StatusMessage = "No games available for the selected level.  Please select another level.";
@@ -1272,12 +1283,13 @@ namespace SudokuWPF.ViewModel
 
         private void StartNewGame()
         {
-            GameInProgress = true;                                  // Raise the game in progress flag
+            //GameInProgress = true;                                  // Raise the game in progress flag
             ShowBoard();                                            // Show the game 
-            _timer.StartTimer();                                    // Start the game timer
-            StartButtonState = StartButtonStateEnum.Pause;          // Set the start button state to Pause
-            EnableGameControls(true, true);                         // Enable the game controls and show the grid
-            UpdateEmptyCount();                                     // Display the number of empty cells
+            //_timer.StartTimer();                                    // Start the game timer
+            //StartButtonState = StartButtonStateEnum.Pause;          // Set the start button state to Pause
+            //EnableGameControls(true, true);                      // Enable the game controls and show the grid
+            IsShowGameGrid = true;
+            //UpdateEmptyCount();                                     // Display the number of empty cells
         }
 
         private void ShowBoard()

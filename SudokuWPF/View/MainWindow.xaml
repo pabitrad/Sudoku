@@ -653,22 +653,22 @@
                   IsEditable="False"
                   IsReadOnly="True"
                   />-->
-               <TextBox Text="ENTER YOUR NAME" Width="160" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="Red" Margin="10, 20, 0, 0"></TextBox>
+               <TextBox Name="PlayerName" Text="ENTER YOUR NAME" Width="160" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="Red" Margin="10, 20, 0, 0"></TextBox>
                <!--<Label HorizontalAlignment="Left"
                Height="39" 
                VerticalAlignment="Top"
                Width="140"
                Content="{Binding Path=ElapsedTime, Mode=OneWay}" />-->
-                <Button Content="START"
+                <Button Content="START" Name="btnStart"
                   Style="{StaticResource StartButtonStyle}"
                   Click="btnStart_Click" Margin="20, 10, 0, 0"/>
 
-                <Button Content="NEW GAME" 
-                  Style="{StaticResource ButtonBaseStyle}"
+                <Button Content="NEW GAME" Name="btnNewGame"
+                  Style="{StaticResource EnableGameButtonStyle}"
                   Click="btnNew_Click" Margin="10, 10, 0, 0"/>
 
                 <Button Content="UNDO" 
-                  Style="{StaticResource ButtonBaseStyle}"
+                  Style="{StaticResource EnableGameButtonStyle}"
                   Margin="20, 10, 0, 0"/>
 
                 <Button Content="RESET"
@@ -683,25 +683,25 @@
                 <Label Content="LEVEL OF DIFFICULTY" Width="145" HorizontalContentAlignment="Center" Foreground="Brown" Background="LightGray" Margin="20, 10, 0, 0">
                 </Label>
 
-                <Button Content="BEGINER"
+                <Button Name="btnBeginer" Content="BEGINER"
                 Style="{StaticResource EnableGameButtonStyle}"
                 Width="145"
-                Margin="20, 10, 0, 0"/>
+                Margin="20, 10, 0, 0" Click="btnBeginer_Click"/>
 
-                <Button Content="MODERATE"
+                <Button Name="btnModerate" Content="MODERATE"
                 Style="{StaticResource EnableGameButtonStyle}"
-                Width="145"
-                Margin="20, 10, 0, 0"/>
+                Width="145" Click="btnModerate_Click"
+                Margin="20, 10, 0, 0" />
 
-                <Button Content="ADVANCE"
+                <Button Name="btnAdvance" Content="ADVANCE"
                 Style="{StaticResource EnableGameButtonStyle}"
-                Width="145"
-                Margin="20, 10, 0, 0"/>
+                Width="145" Click="btnAdvance_Click"
+                Margin="20, 10, 0, 0" />
 
                 <Label Content="PICK A SET TO PLAY" Width="150" HorizontalContentAlignment="Center" Background="LightGray" Foreground="Brown" Margin="20, 10, 0, 0">
                 </Label>
 
-                <Grid Width="200" Height="150" Margin="20, 10, 0, 0" ShowGridLines="False">
+                <Grid Name="PlaySets" Width="200" Height="150" Margin="20, 10, 0, 0" ShowGridLines="False">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1*" />
@@ -715,30 +715,29 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
-                    <Button>01</Button>
-                    <Button Grid.Column="1">02</Button>
-                    <Button Grid.Column="2">03</Button>
-                    <Button Grid.Column="3">04</Button>
-                    <Button Grid.Column="4">05</Button>
-                    
-                    <Button Grid.Row="1">06</Button>
-                    <Button Grid.Column="1" Grid.Row="1">07</Button>
-                    <Button Grid.Column="2" Grid.Row="1">08</Button>
-                    <Button Grid.Column="3" Grid.Row="1">09</Button>
-                    <Button Grid.Column="4" Grid.Row="1">10</Button>
+                    <Button Content="01" IsEnabled="False" Click="btnSet_Click"></Button>
+                    <Button Grid.Column="1" IsEnabled="False" Click="btnSet_Click">02</Button>
+                    <Button Grid.Column="2" IsEnabled="False" Click="btnSet_Click">03</Button>
+                    <Button Grid.Column="3" IsEnabled="False" Click="btnSet_Click">04</Button>
+                    <Button Grid.Column="4" IsEnabled="False" Click="btnSet_Click">05</Button>
 
-                    <Button Grid.Row="2">11</Button>
-                    <Button Grid.Column="1" Grid.Row="2">12</Button>
-                    <Button Grid.Column="2" Grid.Row="2">13</Button>
-                    <Button Grid.Column="3" Grid.Row="2">14</Button>
-                    <Button Grid.Column="4" Grid.Row="2">15</Button>
+                    <Button Grid.Row="1" IsEnabled="False">06</Button>
+                    <Button Grid.Column="1" Grid.Row="1" IsEnabled="False" Click="btnSet_Click">07</Button>
+                    <Button Grid.Column="2" Grid.Row="1" IsEnabled="False" Click="btnSet_Click">08</Button>
+                    <Button Grid.Column="3" Grid.Row="1" IsEnabled="False" Click="btnSet_Click">09</Button>
+                    <Button Grid.Column="4" Grid.Row="1" IsEnabled="False" Click="btnSet_Click">10</Button>
 
-                    <Button Grid.Row="3">16</Button>
-                    <Button Grid.Column="1" Grid.Row="3">17</Button>
-                    <Button Grid.Column="2" Grid.Row="3">18</Button>
-                    <Button Grid.Column="3" Grid.Row="3">19</Button>
-                    <Button Grid.Column="4" Grid.Row="3">20</Button>
+                    <Button Grid.Row="2" IsEnabled="False" Click="btnSet_Click">11</Button>
+                    <Button Grid.Column="1" Grid.Row="2" IsEnabled="False" Click="btnSet_Click">12</Button>
+                    <Button Grid.Column="2" Grid.Row="2" IsEnabled="False" Click="btnSet_Click">13</Button>
+                    <Button Grid.Column="3" Grid.Row="2" IsEnabled="False" Click="btnSet_Click">14</Button>
+                    <Button Grid.Column="4" Grid.Row="2" IsEnabled="False" Click="btnSet_Click">15</Button>
 
+                    <Button Grid.Row="3" IsEnabled="False" Click="btnSet_Click">16</Button>
+                    <Button Grid.Column="1" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">17</Button>
+                    <Button Grid.Column="2" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">18</Button>
+                    <Button Grid.Column="3" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">19</Button>
+                    <Button Grid.Column="4" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">20</Button>
                 </Grid>
                 <Button Content="SHOW ANSWER"
                 Style="{StaticResource EnableGameButtonStyle}"

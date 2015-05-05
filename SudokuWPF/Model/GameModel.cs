@@ -38,6 +38,11 @@ namespace SudokuWPF.Model
             InitClass(cells);                                   // Call the initialization routine.
         }
 
+        internal GameModel(CellClass[,] cells, string setFile)
+        {
+            InitClass(cells);                          // Call the initialization routine.
+        }
+
         #endregion
 
         #region . Properties .

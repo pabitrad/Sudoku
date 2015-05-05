@@ -15,6 +15,7 @@ using System.Windows.Input;
 
 using SudokuWPF.Model.Enums;
 using SudokuWPF.ViewModel;
+using System.Windows.Media;
 
 namespace SudokuWPF.View
 {
@@ -24,6 +25,11 @@ namespace SudokuWPF.View
     public partial class MainWindow : Window
     {
         #region . Variable Declarations .
+
+        string defaultPlayerName = string.Empty;
+
+        Brush redBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+        Brush blackBrush = new SolidColorBrush(Color.FromRgb(0, 0, 0));
 
         private ViewModelClass _viewModel;
 
@@ -37,6 +43,8 @@ namespace SudokuWPF.View
         public MainWindow()
         {
             InitializeComponent();
+
+            defaultPlayerName = PlayerName.Text.Trim();
         }
 
         #endregion
@@ -84,8 +92,18 @@ namespace SudokuWPF.View
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            if (PlayerName.Text == defaultPlayerName)
+            {
+                MessageBox.Show("Enter Player Name.");
+                PlayerName.Focus();
+                return;
+            }
+
             if (ViewModel != null)
+            {
                 ViewModel.StartClicked();
+                btnNewGame.IsEnabled = true;
+            }
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
@@ -104,6 +122,59 @@ namespace SudokuWPF.View
         {
             if (ViewModel != null)
                 ViewModel.PrintClicked();
+        }
+
+        private void btnBeginer_Click(object sender, RoutedEventArgs e)
+        {
+            btnBeginer.Foreground = redBrush;
+            btnModerate.Foreground = blackBrush;
+            btnAdvance.Foreground = blackBrush;
+
+            enablePlaySets(true);
+        }
+
+        private void btnModerate_Click(object sender, RoutedEventArgs e)
+        {
+            btnBeginer.Foreground = blackBrush;
+            btnModerate.Foreground = redBrush;
+            btnAdvance.Foreground = blackBrush;
+
+            enablePlaySets(true);
+        }
+
+        private void btnAdvance_Click(object sender, RoutedEventArgs e)
+        {
+            btnBeginer.Foreground = blackBrush;
+            btnModerate.Foreground = blackBrush;
+            btnAdvance.Foreground = redBrush;
+
+            enablePlaySets(true);
+        }
+
+        private void btnSet_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (Button btnSet in PlaySets.Children)
+            {
+                btnSet.Foreground = blackBrush;
+            }
+
+            Button btnActiveSet = sender as Button;
+            if (btnActiveSet != null)
+            {
+                if (ViewModel != null)
+                {
+                    ViewModel.loadSet(btnActiveSet.Content as string);
+                    btnActiveSet.Foreground = redBrush;
+                }
+            }
+        }
+
+        private void enablePlaySets(bool enablePlaySets)
+        {
+            foreach(Button btnSet in PlaySets.Children)
+            {
+                btnSet.IsEnabled = enablePlaySets;
+            }
         }
 
         #endregion

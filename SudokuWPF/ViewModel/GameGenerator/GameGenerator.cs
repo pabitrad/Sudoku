@@ -71,6 +71,11 @@ namespace SudokuWPF.ViewModel.GameGenerator
             t.Start();                                                  // Start the thread
         }
 
+        internal void CreateNewGame(string setFile)
+        {
+            CellClass[,] cells = GenerateNewBoard(setFile);                    // Generate a new game
+            RaiseEvent(cells);                                          // Raise an event to tell whoever is listening that we're done
+        }
         #endregion
 
         #region . Methods: Private .
@@ -79,6 +84,11 @@ namespace SudokuWPF.ViewModel.GameGenerator
         {
             CellClass[,] cells = GenerateNewBoard();                    // Generate a new game
             RaiseEvent(cells);                                          // Raise an event to tell whoever is listening that we're done
+        }
+
+        private CellClass[,] GenerateNewBoard(string setFile)
+        {
+            return null;
         }
 
         private CellClass[,] GenerateNewBoard()

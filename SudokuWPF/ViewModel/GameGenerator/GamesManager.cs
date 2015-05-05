@@ -24,7 +24,7 @@ namespace SudokuWPF.ViewModel.GameGenerator
         #region . Variables .
 
         private GameCollection[] _games = new GameCollection[Common.MaxLevels];
-
+        GameGenerator _cGameGenerator = null; 
         #endregion
 
         #region . Other Declarations .
@@ -77,6 +77,13 @@ namespace SudokuWPF.ViewModel.GameGenerator
         internal CellClass[,] GetGame(DifficultyLevels level)
         {
             return _games[(int)level].GetGame;          // Get a game based on the specified difficulty level
+        }
+
+        internal CellClass[,] GetGame(DifficultyLevels level, string setFile)
+        {
+            _cGameGenerator = new GameGenerator(level);
+            
+            return null;               // Get a game based on the specified difficulty level
         }
 
         /// <summary>
