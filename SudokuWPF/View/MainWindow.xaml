@@ -19,7 +19,7 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
-        Closing="Window_Closing">
+        Closing="Window_Closing" Loaded="OnLoad">
 
     <Window.Resources>
         <Style x:Key="BorderStyle"
@@ -664,12 +664,11 @@
                VerticalAlignment="Top"
                Width="140"
                Content="{Binding Path=ElapsedTime, Mode=OneWay}" />-->
-                <Button Content="START" Name="btnStart"
+                <!--<Button Content="START" Name="btnStart"
                   Style="{StaticResource StartButtonStyle}"
-                  Click="btnStart_Click" Margin="20, 10, 0, 0"/>
+                  Click="btnStart_Click" Margin="20, 10, 0, 0"/>-->
 
                 <Button Content="NEW GAME" Name="btnNewGame"
-                  Style="{StaticResource EnableGameButtonStyle}"
                   Click="btnNew_Click" Margin="10, 10, 0, 0"/>
 
                 <Button Content="UNDO" 
@@ -703,7 +702,7 @@
                 Width="145" Click="btnAdvance_Click"
                 Margin="20, 10, 0, 0" />
 
-                <Label Content="PICK A SET TO PLAY" Width="150" HorizontalContentAlignment="Center" Background="LightGray" Foreground="Brown" Margin="20, 10, 0, 0">
+                <!--<Label Content="PICK A SET TO PLAY" Width="150" HorizontalContentAlignment="Center" Background="LightGray" Foreground="Brown" Margin="20, 10, 0, 0">
                 </Label>
 
                 <Grid Name="PlaySets" Width="200" Height="150" Margin="20, 10, 0, 0" ShowGridLines="False">
@@ -743,7 +742,7 @@
                     <Button Grid.Column="2" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">18</Button>
                     <Button Grid.Column="3" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">19</Button>
                     <Button Grid.Column="4" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">20</Button>
-                </Grid>
+                </Grid>-->
                 <Button Content="SHOW ANSWER"
                 Style="{StaticResource EnableGameButtonStyle}"
                 Width="145"

@@ -1101,7 +1101,7 @@ namespace SudokuWPF.ViewModel
         /// </summary>
         internal void NewClicked()
         {
-            EnableGameControls(true, true);                         // Show the game controls and show the grid
+            EnableGameControls(true, true);                       // Show the game controls and show the grid
             LoadNewGame();
         }
 

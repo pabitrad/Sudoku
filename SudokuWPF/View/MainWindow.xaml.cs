@@ -90,18 +90,17 @@ namespace SudokuWPF.View
                 e.Cancel = (ViewModel.CloseClicked());          // Check if user really wants to quit?  Cancel the event if user says "No"
         }
 
+        private void OnLoad(object sender, RoutedEventArgs e)
+        {
+            ViewModel.StartClicked();
+        }
+
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
         private void btnNew_Click(object sender, RoutedEventArgs e)
-        {
-            if (ViewModel != null)
-                ViewModel.NewClicked();
-        }
-
-        private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             if (PlayerName.Text == defaultPlayerName)
             {
@@ -112,9 +111,24 @@ namespace SudokuWPF.View
 
             if (ViewModel != null)
             {
-                ViewModel.StartClicked();
-                btnNewGame.IsEnabled = true;
+                MessageBox.Show("Please pick a level of difficulty.");
+                ViewModel.NewClicked();
             }
+        }
+
+        private void btnStart_Click(object sender, RoutedEventArgs e)
+        {
+            //if (PlayerName.Text == defaultPlayerName)
+            //{
+            //    MessageBox.Show("Enter Player Name.");
+            //    PlayerName.Focus();
+            //    return;
+            //}
+
+            //if (ViewModel != null)
+            //{
+            //    ViewModel.StartClicked();
+            //}
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
@@ -144,7 +158,7 @@ namespace SudokuWPF.View
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = blackBrush;
 
-            enablePlaySets(true);
+            showPickUpSetDialogBox(GameSetDifficulty.Beginer);
         }
 
         private void btnModerate_Click(object sender, RoutedEventArgs e)
@@ -156,7 +170,6 @@ namespace SudokuWPF.View
             btnModerate.Foreground = redBrush;
             btnAdvance.Foreground = blackBrush;
 
-            enablePlaySets(true);
         }
 
         private void btnAdvance_Click(object sender, RoutedEventArgs e)
@@ -168,34 +181,48 @@ namespace SudokuWPF.View
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = redBrush;
 
-            enablePlaySets(true);
+        }
+
+        private void showPickUpSetDialogBox(GameSetDifficulty levelDifficulty)
+        {
+            PickupSet pickUpSet = null;
+            try
+            {
+                pickUpSet = new PickupSet(ViewModel, levelDifficulty);
+                pickUpSet.ShowDialog();
+            }
+            finally
+            {
+                pickUpSet = null;
+            }
         }
 
         private void btnSet_Click(object sender, RoutedEventArgs e)
         {
-            foreach (Button btnSet in PlaySets.Children)
-            {
-                btnSet.Foreground = blackBrush;
-            }
 
-            Button btnActiveSet = sender as Button;
-            if (btnActiveSet != null)
-            {
-                if (ViewModel != null)
-                {
-                    ViewModel.GameSetClicked(btnActiveSet.Content as string);
-                    btnActiveSet.Foreground = redBrush;
-                }
-            }
+            //foreach (Button btnSet in PlaySets.Children)
+            //{
+            //    btnSet.Foreground = blackBrush;
+            //}
+
+            //Button btnActiveSet = sender as Button;
+            //if (btnActiveSet != null)
+            //{
+            //    if (ViewModel != null)
+            //    {
+            //        ViewModel.GameSetClicked(btnActiveSet.Content as string);
+            //        btnActiveSet.Foreground = redBrush;
+            //    }
+            //}
         }
 
-        private void enablePlaySets(bool enablePlaySets)
-        {
-            foreach(Button btnSet in PlaySets.Children)
-            {
-                btnSet.IsEnabled = enablePlaySets;
-            }
-        }
+        //private void enablePlaySets(bool enablePlaySets)
+        //{
+        //    foreach(Button btnSet in PlaySets.Children)
+        //    {
+        //        btnSet.IsEnabled = enablePlaySets;
+        //    }
+        //}
 
         #endregion
 
@@ -718,7 +745,7 @@ namespace SudokuWPF.View
             }
             finally
             {
-                inputPad = null;                                        // Release the window pointer
+                inputPad = null;                                      // Release the window pointer
             }
         }
 
