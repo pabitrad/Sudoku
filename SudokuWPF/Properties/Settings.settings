@@ -32,5 +32,17 @@
     <Setting Name="ShowAllNotes" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="GameSetDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Database\Game Set</Value>
+    </Setting>
+    <Setting Name="SetFileNameFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">eSet{0}.txt</Value>
+    </Setting>
+    <Setting Name="SetAnswersFileNameFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">eSet{0}_ans.txt</Value>
+    </Setting>
+    <Setting Name="AnswerSetDirectory" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Database\Answer Set</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

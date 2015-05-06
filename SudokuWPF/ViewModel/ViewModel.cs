@@ -12,9 +12,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
-
+using System.Windows.Forms;
 using SudokuWPF.Model;
 using SudokuWPF.Model.Enums;
 using SudokuWPF.Model.Structures;
@@ -22,6 +24,7 @@ using SudokuWPF.View;
 using SudokuWPF.ViewModel.CustomEventArgs;
 using SudokuWPF.ViewModel.Enums;
 using SudokuWPF.ViewModel.GameGenerator;
+using MessageBox = System.Windows.MessageBox;
 
 namespace SudokuWPF.ViewModel
 {
@@ -33,8 +36,6 @@ namespace SudokuWPF.ViewModel
 
         private static object _lock = new object();
         private static ViewModelClass _instance;
-
-        private const string DATABASE_PATH = @"C:\\Database\\Game Set\\";
 
         private GameTimer _timer;
         private GamesManager _games;
@@ -49,6 +50,7 @@ namespace SudokuWPF.ViewModel
         private bool _isShowSolution;
         private bool _isShowNotes;
         private string _gameTimeElapsed;
+        private InputPadStateEnum? _selectedPadState;
 
         #endregion
 
@@ -927,6 +929,18 @@ namespace SudokuWPF.ViewModel
 
         #region . Properties: Public Read/Write .
 
+        public GameSetDifficulty CurrentGameSetDifficulty { get; set; }
+
+        public InputPadStateEnum? SelectedPadState
+        {
+            get { return _selectedPadState; }
+            set
+            {
+                _selectedPadState = value;
+                OnPropertyChanged("SelectedPadState");
+            }
+        }
+
         /// <summary>
         /// Gets or sets the Game Level.
         /// </summary>
@@ -1070,10 +1084,6 @@ namespace SudokuWPF.ViewModel
             return _instance;                               // Return a pointer to the instance
         }
 
-        public void loadSet(string setNumber)
-        {
-
-        }
         #endregion
 
         #region . Methods: View Form event methods .
@@ -1093,6 +1103,11 @@ namespace SudokuWPF.ViewModel
         {
             EnableGameControls(true, true);                         // Show the game controls and show the grid
             LoadNewGame();
+        }
+
+        internal void GameSetClicked(string setNumberString)
+        {
+            LoadNewGameSet(setNumberString);
         }
 
         /// <summary>
@@ -1134,7 +1149,7 @@ namespace SudokuWPF.ViewModel
         /// <param name="row">Row of the cell where the click event happened.</param>
         internal void CellClicked(Int32 col, Int32 row)
         {
-            //ProcessCellClick(col, row);
+            ProcessCellClick(col, row);
         }
 
         #endregion
@@ -1218,6 +1233,40 @@ namespace SudokuWPF.ViewModel
             }
         }
 
+        private void LoadNewGameSet(string setNumberString)
+        {
+            bool isGameCreated;
+            if (GameInProgress)                                     
+            {                                                       
+                MessageBoxResult iResults = MessageBox.Show("There is already a game in progress.  Do you want to play a new game?", "Sudoku", MessageBoxButton.YesNo);
+                if (iResults == MessageBoxResult.Yes)               
+                {
+                    GameEnded(false);
+                    isGameCreated = TryGetNewGame(setNumberString);                    
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                StatusMessage = "";                                 
+                ElapsedTime = "";
+                isGameCreated = TryGetNewGame(setNumberString);
+            }
+            if (isGameCreated)
+            {
+                GameInProgress = true; 
+                ShowBoard(); 
+                _timer.StartTimer(); 
+                StartButtonState = StartButtonStateEnum.Pause; 
+                EnableGameControls(true, true); 
+                IsShowGameGrid = true;
+                UpdateEmptyCount();
+            }
+        }
+
         private void GameEnded(bool bShowDialog)
         {
             _timer.StopTimer();                                     // Stop the timer
@@ -1239,11 +1288,20 @@ namespace SudokuWPF.ViewModel
             }
         }
 
-        private void GetNewGame(string setFile)
+        private bool TryGetNewGame(string setNumberString)
         {
-            _model = new GameModel(_games.GetGame(GameLevel), setFile);
-            StartButtonState = StartButtonStateEnum.Start;      // Set the start button state to Start
+            try
+            {
+                _model = new GameModel(_games.GetGame(CurrentGameSetDifficulty, setNumberString));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Cannot load \"" + setNumberString + "\" game set.", "Sorry...", MessageBoxButton.OK,MessageBoxImage.Warning);
+                return false;
+            }
         }
+
         private void GetNewGame()
         {
             if (_games.GameCount(GameLevel) > 0)                    // Are there games available? 
@@ -1353,8 +1411,15 @@ namespace SudokuWPF.ViewModel
 
         private void ProcessCellClick(Int32 col, Int32 row)
         {
-            if (IsValidGame() && (_model[col, row].CellState != CellStateEnum.Answer))  // Is a game in progress and the cell is in the answer state
-                ProcessNumberPad(col, row, _view.ShowNumberPad());  // Yes, display the number pad and process it
+            if (!SelectedPadState.HasValue)
+            {
+                return;
+            }
+            if (IsValidGame() && (_model[col, row].CellState != CellStateEnum.Answer))
+            {
+                ProcessNumberPad(col, row, SelectedPadState.Value); 
+            }
+            SelectedPadState = null;
         }
 
         private void ProcessNumberPad(Int32 col, Int32 row, InputPadStateEnum value)

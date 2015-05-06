@@ -98,6 +98,7 @@
     </Compile>
     <Compile Include="Model\Enums\CellStateEnum.cs" />
     <Compile Include="Model\Enums\DifficultyLevels.cs" />
+    <Compile Include="Model\Enums\GameSetDifficulty.cs" />
     <Compile Include="Model\Enums\InputPadStateEnum.cs" />
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Model\Structures\CellIndex.cs" />

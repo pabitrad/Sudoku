@@ -9,8 +9,10 @@
 // 
 
 using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
 using SudokuWPF.Model.Enums;
@@ -32,7 +34,8 @@ namespace SudokuWPF.View
         Brush blackBrush = new SolidColorBrush(Color.FromRgb(0, 0, 0));
 
         private ViewModelClass _viewModel;
-
+        private ToggleButton _selectedInputControlButton = null;
+        
         #endregion
 
         #region . Constructors .
@@ -62,11 +65,19 @@ namespace SudokuWPF.View
             }
             set
             {
+                if (_viewModel != null)
+                {
+                    _viewModel.PropertyChanged -= HandleViewModelPropertyChanged;
+                }
+                if (value != null)
+                {
+                    value.PropertyChanged += HandleViewModelPropertyChanged;
+                }
                 _viewModel = value;                             // Save a pointer to the ViewModel class
                 this.DataContext = value;                       // Set the datacontext of the WPF form to the view model.
             }
         }
-
+        
         #endregion
 
         #region . Form Event Handlers .
@@ -126,6 +137,9 @@ namespace SudokuWPF.View
 
         private void btnBeginer_Click(object sender, RoutedEventArgs e)
         {
+            if (ViewModel != null)
+                ViewModel.CurrentGameSetDifficulty = GameSetDifficulty.Beginer;
+            
             btnBeginer.Foreground = redBrush;
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = blackBrush;
@@ -135,6 +149,9 @@ namespace SudokuWPF.View
 
         private void btnModerate_Click(object sender, RoutedEventArgs e)
         {
+            if (ViewModel != null)
+                ViewModel.CurrentGameSetDifficulty = GameSetDifficulty.Moderate;
+
             btnBeginer.Foreground = blackBrush;
             btnModerate.Foreground = redBrush;
             btnAdvance.Foreground = blackBrush;
@@ -144,6 +161,9 @@ namespace SudokuWPF.View
 
         private void btnAdvance_Click(object sender, RoutedEventArgs e)
         {
+            if (ViewModel != null)
+                ViewModel.CurrentGameSetDifficulty = GameSetDifficulty.Advance;
+
             btnBeginer.Foreground = blackBrush;
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = redBrush;
@@ -163,7 +183,7 @@ namespace SudokuWPF.View
             {
                 if (ViewModel != null)
                 {
-                    ViewModel.loadSet(btnActiveSet.Content as string);
+                    ViewModel.GameSetClicked(btnActiveSet.Content as string);
                     btnActiveSet.Foreground = redBrush;
                 }
             }
@@ -739,5 +759,48 @@ namespace SudokuWPF.View
         }
 
         #endregion
+
+        private void HandleViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (ViewModel == null)
+            {
+                return;
+            }
+            if (e.PropertyName == "SelectedPadState")
+            {
+                if (!ViewModel.SelectedPadState.HasValue && _selectedInputControlButton!=null)
+                {
+                    _selectedInputControlButton.IsChecked = false;
+                    _selectedInputControlButton = null;
+                }
+            }
+        }
+
+        private void HandleInputControlButtonClick(object sender, RoutedEventArgs e)
+        {
+            var selectedButton = e.OriginalSource as ToggleButton;
+            if (selectedButton == null)
+            {
+                return;
+            }
+            var padState = (InputPadStateEnum) selectedButton.Tag;
+            if (ViewModel != null)
+            {
+                if (!ReferenceEquals(_selectedInputControlButton, selectedButton))
+                {
+                    ViewModel.SelectedPadState = padState;
+                    if (_selectedInputControlButton != null)
+                    {
+                        _selectedInputControlButton.IsChecked = false;
+                    }
+                    _selectedInputControlButton = selectedButton;
+                }
+                else
+                {
+                    ViewModel.SelectedPadState = null;
+                    _selectedInputControlButton = null;
+                }
+            }
+        }
     }
 }

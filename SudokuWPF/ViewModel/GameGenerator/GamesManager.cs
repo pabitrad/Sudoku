@@ -9,7 +9,10 @@
 // 
 
 using System;
-
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using SudokuWPF.Model;
 using SudokuWPF.Model.Enums;
 using SudokuWPF.Model.Structures;
@@ -21,8 +24,10 @@ namespace SudokuWPF.ViewModel.GameGenerator
     {
         #region . Variables, Constants, And other Declarations .
 
-        #region . Variables .
+        private const int BOARD_SIDE = 9;
 
+        #region . Variables .
+        
         private GameCollection[] _games = new GameCollection[Common.MaxLevels];
         GameGenerator _cGameGenerator = null; 
         #endregion
@@ -79,11 +84,57 @@ namespace SudokuWPF.ViewModel.GameGenerator
             return _games[(int)level].GetGame;          // Get a game based on the specified difficulty level
         }
 
-        internal CellClass[,] GetGame(DifficultyLevels level, string setFile)
+        internal CellClass[,] GetGame(GameSetDifficulty level, string setNumberString)
         {
-            _cGameGenerator = new GameGenerator(level);
-            
-            return null;               // Get a game based on the specified difficulty level
+            string gameSetFileName = string.Format(Properties.Settings.Default.SetFileNameFormat, setNumberString);
+            string gameSetFilePath = Properties.Settings.Default.GameSetDirectory + "\\" + level + "\\" + gameSetFileName;
+            string gamSetAnswersFileName = string.Format(Properties.Settings.Default.SetAnswersFileNameFormat, setNumberString);
+            string gameSetAnswersFilePath = Properties.Settings.Default.AnswerSetDirectory + "\\" + level + "\\" + gamSetAnswersFileName;
+
+            string setSourceString = File.ReadAllText(gameSetFilePath);
+            setSourceString = setSourceString.Replace("\r\n", " ");
+            var numberStrings = setSourceString.Split(' ');
+
+            string setAnswerSourceString = File.ReadAllText(gameSetAnswersFilePath);
+            setAnswerSourceString = setAnswerSourceString.Replace("\r\n", " ");
+            var numberAnswerStrings = setAnswerSourceString.Split(' ');
+
+            if (numberStrings.Length != numberAnswerStrings.Length)
+            {
+                throw new InvalidOperationException("Game set and Answer set numbers count not match.");
+            }
+
+            CellClass[,] cellsArray = new CellClass[BOARD_SIDE, BOARD_SIDE];
+            for (int index = 0; index < numberStrings.Length; index++)
+            {
+                var numberStr = numberStrings[index];
+                int number;
+                bool isNumberParsed = int.TryParse(numberStr, out number);
+                if (!isNumberParsed)
+                {
+                    throw new InvalidOperationException(string.Format("Cannot parse number {0}", numberStr));
+                }
+
+                var numberAnswerStr = numberAnswerStrings[index];
+                int numberAnswer;
+                bool isNumberAnswerParsed = int.TryParse(numberAnswerStr, out numberAnswer);
+                if (!isNumberAnswerParsed)
+                {
+                    throw new InvalidOperationException(string.Format("Cannot parse number answer {0}", numberAnswerStr));
+                }
+
+                if (number != 0 && number != numberAnswer)
+                {
+                    throw new InvalidOperationException(string.Format("Game set number {0} not equals Answer {1}", number, numberAnswer));
+                }
+
+                var cell = new CellClass(index, numberAnswer)
+                {
+                    CellState = number != 0 ? CellStateEnum.Answer : CellStateEnum.Blank
+                };
+                cellsArray[cell.Col, cell.Row] = cell;
+            }
+            return cellsArray;
         }
 
         /// <summary>

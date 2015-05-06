@@ -70,7 +70,7 @@
         </Style>
 
         <Style x:Key="ButtonBaseStyle"
-               TargetType="Button">
+               TargetType="ButtonBase">
             <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="Width" Value="70" />
@@ -102,7 +102,7 @@
         </ObjectDataProvider>
 
         <Style x:Key="StartButtonStyle"
-               TargetType="Button"               
+               TargetType="ButtonBase"               
                BasedOn="{StaticResource ButtonBaseStyle}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Path=StartButtonState, Mode=OneWay}" Value="Start">
@@ -306,7 +306,7 @@
                 <Label Content="Let's Play" FontSize="40" FontStyle="Italic"></Label>
                 <Label Content="SUDOKU" FontSize="40" FontWeight="Bold"></Label>
 
-                <Grid Width="170" Height="150" Margin="20, 10, 0, 0" ShowGridLines="False">
+                <Grid Width="170" Height="150" Margin="20, 10, 0, 0" ShowGridLines="False" ToggleButton.Click="HandleInputControlButtonClick">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1*" />
@@ -317,19 +317,24 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
-                    <Button>1</Button>
-                    <Button Grid.Column="1">2</Button>
-                    <Button Grid.Column="2">3</Button>
-                    <Button Grid.Row="1">4</Button>
-                    <Button Grid.Column="1" Grid.Row="1">5</Button>
-                    <Button Grid.Column="2" Grid.Row="1">6</Button>
-                    <Button Grid.Row="2">7</Button>
-                    <Button Grid.Column="1" Grid.Row="2">8</Button>
-                    <Button Grid.Column="2" Grid.Row="2">9</Button>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number1}">1</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number2}" Grid.Column="1">2</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number3}" Grid.Column="2">3</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number4}" Grid.Row="1">4</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number5}" Grid.Column="1" Grid.Row="1">5</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number6}" Grid.Column="2" Grid.Row="1">6</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number7}" Grid.Row="2">7</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number8}" Grid.Column="1" Grid.Row="2">8</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number9}" Grid.Column="2" Grid.Row="2">9</ToggleButton>
                 </Grid>
-                <Button Content="REMOVE"
-                  Style="{StaticResource StartButtonStyle}"
-                  Margin="20, 0, 0, 0" Width="170"/>
+                <ToggleButton 
+                    Content="REMOVE"
+                    Click="HandleInputControlButtonClick"
+                    Style="{StaticResource StartButtonStyle}"
+                    Margin="20, 0, 0, 0" 
+                    Width="170"
+                    Tag="{x:Static srcME:InputPadStateEnum.ClearRaised}"
+                    />
                 
                 <Label Content="INPUT CONTROL" FontWeight="Bold" FontSize="20" Margin="20,20, 0, 0" Foreground="Red"></Label>
                 <Label FontWeight="Bold" FontSize="15" Margin="20,0, 0, 0" Foreground="Red" Height="154">
