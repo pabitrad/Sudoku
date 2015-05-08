@@ -22,6 +22,7 @@ namespace SudokuWPF.ViewModel
         #region . Constant declarations .
 
         internal const Int32 MaxLevels = 5;                     // This value should correspond to the number of game levels (DifficultyLevels enum)
+        internal const Int32 BorderSide = 9;
 
         #endregion
 

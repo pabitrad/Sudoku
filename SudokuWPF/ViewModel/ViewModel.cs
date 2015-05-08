@@ -1415,11 +1415,57 @@ namespace SudokuWPF.ViewModel
             {
                 return;
             }
+            if (!IsPadStateApplicable(col, row, SelectedPadState.Value))
+            {
+                return;
+            }
             if (IsValidGame() && (_model[col, row].CellState != CellStateEnum.Answer))
             {
                 ProcessNumberPad(col, row, SelectedPadState.Value); 
             }
             SelectedPadState = null;
+        }
+
+        public bool IsPadStateApplicable(Int32 col, Int32 row, InputPadStateEnum padState)
+        {
+            var appliedNumber = GetNumberIntOrNull(padState);
+            if (appliedNumber == null)
+            {
+                return true;
+            }
+            var isCellMatchAppliedNumber = new Predicate<CellClass>(
+                cell => cell != null &&
+                        cell.CellState != CellStateEnum.Blank &&
+                        cell.CellState != CellStateEnum.Hint &&
+                        (cell.Answer == appliedNumber |
+                         cell.UserAnswer == appliedNumber));
+            //check col for number duplication
+            for (int rowIndex = 0; rowIndex < Common.BorderSide; rowIndex++)
+            {
+                var cell = _model[col, rowIndex];
+                if (cell.Row != row && isCellMatchAppliedNumber(cell))
+                {
+                    return false;
+                }
+            }
+            //check row for number duplication
+            for (int colIndex = 0; colIndex < Common.BorderSide; colIndex++)
+            {
+                var cell = _model[colIndex, row];
+                if (cell.Col != col && isCellMatchAppliedNumber(cell))
+                {
+                    return false;
+                }
+            }
+            //check 3x3 square
+            foreach (var cell in _model.RegionCells(_model[col, row].Region))
+            {
+                if ((cell.Col != col || cell.Row != row) && isCellMatchAppliedNumber(cell))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void ProcessNumberPad(Int32 col, Int32 row, InputPadStateEnum value)
@@ -1469,6 +1515,22 @@ namespace SudokuWPF.ViewModel
                 case InputPadStateEnum.Number9:                     // User clicked the "9" button
                     ProcessNumberPad(col, row, 9);                  // Process the number
                     break;
+            }
+        }
+
+        private int? GetNumberIntOrNull(InputPadStateEnum value) {
+            switch (value) {
+                    case InputPadStateEnum.Number1: return 1;
+                    case InputPadStateEnum.Number2: return 2;
+                    case InputPadStateEnum.Number3: return 3;
+                    case InputPadStateEnum.Number4: return 4;
+                    case InputPadStateEnum.Number5: return 5;
+                    case InputPadStateEnum.Number6: return 6;
+                    case InputPadStateEnum.Number7: return 7;
+                    case InputPadStateEnum.Number8: return 8;
+                    case InputPadStateEnum.Number9: return 9;
+                default:
+                    return null;
             }
         }
 

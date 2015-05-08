@@ -158,7 +158,7 @@ namespace SudokuWPF.View
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = blackBrush;
 
-            showPickUpSetDialogBox(GameSetDifficulty.Beginer);
+            showPickUpSetDialogBox();
         }
 
         private void btnModerate_Click(object sender, RoutedEventArgs e)
@@ -170,6 +170,7 @@ namespace SudokuWPF.View
             btnModerate.Foreground = redBrush;
             btnAdvance.Foreground = blackBrush;
 
+            showPickUpSetDialogBox();
         }
 
         private void btnAdvance_Click(object sender, RoutedEventArgs e)
@@ -180,15 +181,16 @@ namespace SudokuWPF.View
             btnBeginer.Foreground = blackBrush;
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = redBrush;
-
+            
+            showPickUpSetDialogBox();
         }
 
-        private void showPickUpSetDialogBox(GameSetDifficulty levelDifficulty)
+        private void showPickUpSetDialogBox()
         {
             PickupSet pickUpSet = null;
             try
             {
-                pickUpSet = new PickupSet(ViewModel, levelDifficulty);
+                pickUpSet = new PickupSet(ViewModel);
                 pickUpSet.ShowDialog();
             }
             finally

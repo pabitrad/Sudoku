@@ -24,8 +24,6 @@ namespace SudokuWPF.ViewModel.GameGenerator
     {
         #region . Variables, Constants, And other Declarations .
 
-        private const int BOARD_SIDE = 9;
-
         #region . Variables .
         
         private GameCollection[] _games = new GameCollection[Common.MaxLevels];
@@ -104,7 +102,7 @@ namespace SudokuWPF.ViewModel.GameGenerator
                 throw new InvalidOperationException("Game set and Answer set numbers count not match.");
             }
 
-            CellClass[,] cellsArray = new CellClass[BOARD_SIDE, BOARD_SIDE];
+            CellClass[,] cellsArray = new CellClass[Common.BorderSide, Common.BorderSide];
             for (int index = 0; index < numberStrings.Length; index++)
             {
                 var numberStr = numberStrings[index];
