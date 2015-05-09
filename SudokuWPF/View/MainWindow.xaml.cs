@@ -1,12 +1,4 @@
-﻿//
-// Copyright (c) 2014 Han Hung
-// 
-// This program is free software; it is distributed under the terms
-// of the GNU General Public License v3 as published by the Free
-// Software Foundation.
-//
-// http://www.gnu.org/licenses/gpl-3.0.html
-// 
+﻿
 
 using System;
 using System.ComponentModel;
@@ -87,7 +79,8 @@ namespace SudokuWPF.View
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (ViewModel != null)
-                e.Cancel = (ViewModel.CloseClicked());          // Check if user really wants to quit?  Cancel the event if user says "No"
+ //               e.Cancel = (ViewModel.CloseClicked());          // Check if user really wants to quit?  Cancel the event if user says "No"
+            ViewModel.CloseClicked();
         }
 
         private void OnLoad(object sender, RoutedEventArgs e)
@@ -98,6 +91,11 @@ namespace SudokuWPF.View
         private void btnClose_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void MenuItem_Click_Exit(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
 
         private void btnNew_Click(object sender, RoutedEventArgs e)
@@ -137,6 +135,12 @@ namespace SudokuWPF.View
                 ViewModel.ResetClicked();
         }
 
+
+        private void btnUndo_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
         private void btnAbout_Click(object sender, RoutedEventArgs e)
         {
             if (ViewModel != null)
@@ -158,7 +162,7 @@ namespace SudokuWPF.View
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = blackBrush;
 
-            showPickUpSetDialogBox();
+            showPickUpSetDialogBox(GameSetDifficulty.Beginer);
         }
 
         private void btnModerate_Click(object sender, RoutedEventArgs e)
@@ -170,7 +174,8 @@ namespace SudokuWPF.View
             btnModerate.Foreground = redBrush;
             btnAdvance.Foreground = blackBrush;
 
-            showPickUpSetDialogBox();
+            showPickUpSetDialogBox(GameSetDifficulty.Moderate);
+
         }
 
         private void btnAdvance_Click(object sender, RoutedEventArgs e)
@@ -181,16 +186,31 @@ namespace SudokuWPF.View
             btnBeginer.Foreground = blackBrush;
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = redBrush;
-            
-            showPickUpSetDialogBox();
+
+            showPickUpSetDialogBox(GameSetDifficulty.Advance);
+
         }
 
-        private void showPickUpSetDialogBox()
+
+
+        private void btnAnswer_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel != null)
+                ViewModel.IsShowSolution = true;
+
+
+            btnAnswer.Foreground = redBrush;
+
+        }
+
+
+
+        private void showPickUpSetDialogBox(GameSetDifficulty levelDifficulty)
         {
             PickupSet pickUpSet = null;
             try
             {
-                pickUpSet = new PickupSet(ViewModel);
+                pickUpSet = new PickupSet(ViewModel, levelDifficulty);
                 pickUpSet.ShowDialog();
             }
             finally

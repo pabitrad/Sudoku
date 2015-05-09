@@ -1,12 +1,4 @@
-﻿<!--
-    Copyright (c) 2014 Han Hung
-
-    This program is free software; it is distributed under the terms
-    of the GNU General Public License v3 as published by the Free
-    Software Foundation.
-
-    http://www.gnu.org/licenses/gpl-3.0.html
--->
+﻿
 <Window x:Class="SudokuWPF.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -263,18 +255,21 @@
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=CellState}" Value="Hint">
                     <Setter Property="Text" Value="{Binding Path=Answer, Mode=OneWay}" TargetName="Cell"/>
-                    <Setter Property="Foreground" Value="BlueViolet" TargetName="Cell"/>
+                    <Setter Property="Foreground" Value="red" TargetName="Cell"/>
+                    <!--<Setter Property="Foreground" Value="BlueViolet" TargetName="Cell"/>-->
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=CellState}" Value="Blank">
                     <Setter Property="Text" Value=" " TargetName="Cell"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=CellState}" Value="UserInputCorrect" >
                     <Setter Property="Text" Value="{Binding Path=UserAnswer, Mode=OneWay}" TargetName="Cell"/>
-                    <Setter Property="Foreground" Value="DarkGreen" TargetName="Cell"/>
+                    <!--<Setter Property="Foreground" Value="DarkGreen" TargetName="Cell"/>-->
+                    <Setter Property="Foreground" Value="Blue" TargetName="Cell"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=CellState}" Value="UserInputIncorrect" >
                     <Setter Property="Text" Value="{Binding Path=UserAnswer, Mode=OneWay}" TargetName="Cell"/>
-                    <Setter Property="Foreground" Value="DarkRed" TargetName="Cell"/>
+                    <!--<Setter Property="Foreground" Value="DarkRed" TargetName="Cell"/>-->
+                    <Setter Property="Foreground" Value="Blue" TargetName="Cell"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Path=CellState}" Value="Notes">
                     <Setter Property="Margin" Value="5" TargetName="CellGrid" />
@@ -303,8 +298,8 @@
                 <ColumnDefinition Width="200" />
             </Grid.ColumnDefinitions>
             <WrapPanel Grid.Row="0" Grid.Column="0">
-                <Label Content="Let's Play" FontSize="40" FontStyle="Italic"></Label>
-                <Label Content="SUDOKU" FontSize="40" FontWeight="Bold"></Label>
+                <Label Content="Let's Play" FontSize="36" FontStyle="Italic" Margin="20, 20, 0, 0"></Label>
+                <Label Content="SUDOKU" FontSize="38" FontWeight="Bold" Margin="20, 0, 0, 0" Width="167"></Label>
 
                 <Grid Width="170" Height="150" Margin="20, 10, 0, 0" ShowGridLines="False" ToggleButton.Click="HandleInputControlButtonClick">
                     <Grid.ColumnDefinitions>
@@ -317,31 +312,32 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number1}">1</ToggleButton>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number2}" Grid.Column="1">2</ToggleButton>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number3}" Grid.Column="2">3</ToggleButton>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number4}" Grid.Row="1">4</ToggleButton>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number5}" Grid.Column="1" Grid.Row="1">5</ToggleButton>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number6}" Grid.Column="2" Grid.Row="1">6</ToggleButton>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number7}" Grid.Row="2">7</ToggleButton>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number8}" Grid.Column="1" Grid.Row="2">8</ToggleButton>
-                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number9}" Grid.Column="2" Grid.Row="2">9</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number1}" FontSize="24" FontWeight="Bold">1</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number2}" Grid.Column="1" FontSize="25" FontWeight="Bold">2</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number3}" Grid.Column="2" FontSize="25" FontWeight="Bold">3</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number4}" Grid.Row="1" FontSize="25" FontWeight="Bold">4</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number5}" Grid.Column="1" Grid.Row="1" FontSize="25" FontWeight="Bold">5</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number6}" Grid.Column="2" Grid.Row="1" FontSize="25" FontWeight="Bold">6</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number7}" Grid.Row="2" FontSize="25" FontWeight="Bold">7</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number8}" Grid.Column="1" Grid.Row="2" FontSize="25" FontWeight="Bold">8</ToggleButton>
+                    <ToggleButton Tag="{x:Static srcME:InputPadStateEnum.Number9}" Grid.Column="2" Grid.Row="2" FontSize="25" FontWeight="Bold">9</ToggleButton>
                 </Grid>
                 <ToggleButton 
                     Content="REMOVE"
                     Click="HandleInputControlButtonClick"
                     Style="{StaticResource StartButtonStyle}"
                     Margin="20, 0, 0, 0" 
-                    Width="170"
+                    Width="170" FontSize="24" FontWeight="Bold"
+                    Height="45"
                     Tag="{x:Static srcME:InputPadStateEnum.ClearRaised}"
                     />
-                
+
                 <Label Content="INPUT CONTROL" FontWeight="Bold" FontSize="20" Margin="20,20, 0, 0" Foreground="Red"></Label>
                 <Label FontWeight="Bold" FontSize="15" Margin="20,0, 0, 0" Foreground="Red" Height="154">
                     <TextBlock Text="To place an input on the game board, click on this panel and then click on the place on the board where you want to place your number" TextWrapping="Wrap" ></TextBlock>
                 </Label>
             </WrapPanel>
-            
+
             <Grid  Grid.Row="0" Grid.Column="1" Style="{StaticResource GameGridStyle}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -646,7 +642,7 @@
                 </Grid>
             </Grid>
             <WrapPanel Grid.Row="0" Grid.Column="2" Margin="0,0,-33,0">
-              <!--<Label Content="Difficulty Level:"
+                <!--<Label Content="Difficulty Level:"
                Height="27" 
                VerticalAlignment="Top" 
                Width="140"
@@ -658,8 +654,8 @@
                   IsEditable="False"
                   IsReadOnly="True"
                   />-->
-               <TextBox Name="PlayerName" Text="ENTER YOUR NAME" Width="160" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="Red" Margin="10, 20, 0, 0"></TextBox>
-               <!--<Label HorizontalAlignment="Left"
+                <TextBox Name="PlayerName" Text="ENTER YOUR NAME" Width="170" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="Red" Margin="20, 20, 0, 0" FontWeight="Bold"></TextBox>
+                <!--<Label HorizontalAlignment="Left"
                Height="39" 
                VerticalAlignment="Top"
                Width="140"
@@ -668,39 +664,47 @@
                   Style="{StaticResource StartButtonStyle}"
                   Click="btnStart_Click" Margin="20, 10, 0, 0"/>-->
 
-                <Button Content="NEW GAME" Name="btnNewGame"
-                  Click="btnNew_Click" Margin="10, 10, 0, 0"/>
+                <Button Content="NEW GAME" Name="btnNewGame" Width="170" Height="35"
+                  Click="btnNew_Click" Margin="20, 20, 0, 0" FontWeight="Bold" FontSize="14"/>
 
-                <Button Content="UNDO" 
+                <Button Content="UNDO" Width="170" Height="35" FontWeight="Bold" FontSize="14"
                   Style="{StaticResource EnableGameButtonStyle}"
                   Margin="20, 10, 0, 0"/>
-
-                <Button Content="RESET"
+                <Button Content="RESET" Width="170" Height="35" FontWeight="Bold" FontSize="14"
+                	Style="{StaticResource EnableGameButtonStyle}"
+                	Click="btnReset_Click" Margin="20, 10, 0, 0"/>
+                <Button Content="LAST GAME" Width="170" Height="35" FontWeight="Bold" FontSize="14"
                 Style="{StaticResource EnableGameButtonStyle}"
-                Click="btnReset_Click" Margin="10, 10, 0, 0"/>
-
-                <Button Content="LAST GAME"
-                Style="{StaticResource EnableGameButtonStyle}"
-                Width="145"
+                Click="btnReset_Click"
                 Margin="20, 10, 0, 0"/>
 
-                <Label Content="LEVEL OF DIFFICULTY" Width="145" HorizontalContentAlignment="Center" Foreground="Brown" Background="LightGray" Margin="20, 10, 0, 0">
+                <Label Content="LEVEL OF DIFFICULTY" Width="170" Height="35" FontWeight="Bold" FontSize="14"
+                       HorizontalContentAlignment="Center" VerticalAlignment="Center" Foreground="Brown" Background="LightGray" Margin="20, 30, 0, 0">
                 </Label>
 
-                <Button Name="btnBeginer" Content="BEGINER"
+                <Button Name="btnBeginer" Content="BEGINER" Width="170" Height="35" FontWeight="Bold" FontSize="14"
                 Style="{StaticResource EnableGameButtonStyle}"
-                Width="145"
                 Margin="20, 10, 0, 0" Click="btnBeginer_Click"/>
 
-                <Button Name="btnModerate" Content="MODERATE"
+                <Button Name="btnModerate" Content="MODERATE" Width="170" Height="35" FontWeight="Bold" FontSize="14"
                 Style="{StaticResource EnableGameButtonStyle}"
-                Width="145" Click="btnModerate_Click"
+                Click="btnModerate_Click"
                 Margin="20, 10, 0, 0" />
 
-                <Button Name="btnAdvance" Content="ADVANCE"
+                <Button Name="btnAdvance" Content="ADVANCE" Width="170" Height="35" FontWeight="Bold" FontSize="14"
                 Style="{StaticResource EnableGameButtonStyle}"
-                Width="145" Click="btnAdvance_Click"
+                Click="btnAdvance_Click"
                 Margin="20, 10, 0, 0" />
+                
+                <Button Name="btnAnswer" Content="SHOW ANSWER" Width="170" Height="35" FontWeight="Bold" FontSize="14" Foreground="Green"
+                Style="{StaticResource EnableGameButtonStyle}"
+                Click="btnAnswer_Click"
+                Margin="20, 20, 0, 0"/>
+
+                <Button Content="EXIT" Width="170" Height="35" FontWeight="Bold" FontSize="14"
+                Click="MenuItem_Click_Exit"
+                Style="{StaticResource EnableGameButtonStyle}"
+                Margin="20, 30, 0, 0"/>
 
                 <!--<Label Content="PICK A SET TO PLAY" Width="150" HorizontalContentAlignment="Center" Background="LightGray" Foreground="Brown" Margin="20, 10, 0, 0">
                 </Label>
@@ -743,10 +747,6 @@
                     <Button Grid.Column="3" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">19</Button>
                     <Button Grid.Column="4" Grid.Row="3" IsEnabled="False" Click="btnSet_Click">20</Button>
                 </Grid>-->
-                <Button Content="SHOW ANSWER"
-                Style="{StaticResource EnableGameButtonStyle}"
-                Width="145"
-                Margin="20, 10, 0, 0"/>
 
                 <!--<Button Content="About Sudoku WPF"
                 Style="{StaticResource ButtonBaseStyle}"
