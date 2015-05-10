@@ -230,6 +230,8 @@ namespace SudokuWPF.View
             try
             {
                 pickUpSet = new PickupSet(ViewModel, difficultyLevel);
+                pickUpSet.Owner = this;
+                pickUpSet.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 bool? dialogResult = pickUpSet.ShowDialog();
                 if (dialogResult.HasValue && dialogResult.Value)
                 {

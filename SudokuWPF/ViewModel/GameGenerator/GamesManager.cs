@@ -155,6 +155,7 @@ namespace SudokuWPF.ViewModel.GameGenerator
         internal void CheckAlreadyPlayedLevelAndSet(
              string playerName, GameSetDifficulty difficultyLevel, string setNumber, out bool isLevelPlayed, out int gameSetPlayedCount)
         {
+            EnsureDataFile();
             string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + DataConst.DataFileName;
             var players = XDocument
                 .Load(dataFilePath)
@@ -192,6 +193,7 @@ namespace SudokuWPF.ViewModel.GameGenerator
 
         internal void IncrementGameSetPlayedCount(string playerName, GameSetDifficulty difficultyLevel, string setNumber)
         {
+            EnsureDataFile();
             string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + DataConst.DataFileName;
             var dataBaseDoc = XDocument.Load(dataFilePath);
             var playerElement = dataBaseDoc.Root.Elements(DataConst.XmlPlayerElement)
@@ -222,6 +224,16 @@ namespace SudokuWPF.ViewModel.GameGenerator
             int currentPlayedCount = int.Parse(gameSet.Attribute(DataConst.XmlGameSetPlayedCountAttr).Value);
             gameSet.SetAttributeValue(DataConst.XmlGameSetPlayedCountAttr, ++currentPlayedCount);
             dataBaseDoc.Save(dataFilePath);
+        }
+
+        private void EnsureDataFile()
+        {
+            string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + "\\" + DataConst.DataFileName;
+            if (!File.Exists(dataFilePath))
+            {
+                XDocument doc = new XDocument(new XElement(DataConst.XmlSudokuElement));
+                doc.Save(dataFilePath);
+            }
         }
 
         /// <summary>
