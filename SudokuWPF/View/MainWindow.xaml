@@ -654,7 +654,17 @@
                   IsEditable="False"
                   IsReadOnly="True"
                   />-->
-                <TextBox Name="PlayerName" Text="ENTER YOUR NAME" Width="170" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="Red" Margin="20, 20, 0, 0" FontWeight="Bold"></TextBox>
+                <TextBox
+                    Name="PlayerName" 
+                    Text="{Binding PlayerName, TargetNullValue='ENTER PLAYER NAME'}" 
+                    Width="170" Height="30" 
+                    HorizontalContentAlignment="Center" 
+                    VerticalContentAlignment="Center" 
+                    Foreground="Red" 
+                    Margin="20, 20, 0, 0" 
+                    FontWeight="Bold"
+                    >
+                </TextBox>
                 <!--<Label HorizontalAlignment="Left"
                Height="39" 
                VerticalAlignment="Top"

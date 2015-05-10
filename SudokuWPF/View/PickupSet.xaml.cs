@@ -1,61 +1,73 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using SudokuWPF.ViewModel;
 using SudokuWPF.Model.Enums;
+using SudokuWPF.ViewModel;
 
 namespace SudokuWPF.View
 {
-    /// <summary>
-    /// Interaction logic for PickupSet.xaml
-    /// </summary>
     public partial class PickupSet : Window
     {
-        ViewModelClass _vm = null;
-        GameSetDifficulty _levelDifficulty;
-        public PickupSet(ViewModelClass vm, GameSetDifficulty levelDifficulty)
+        private readonly ViewModelClass _viewModel;
+        private readonly GameSetDifficulty _difficultyLevel;
+
+        public PickupSet(ViewModelClass viewModel, GameSetDifficulty difficultyLevel)
         {
+            if (viewModel == null)
+            {
+                throw new ArgumentNullException("viewModel");
+            }
+            
+            _viewModel = viewModel;
+            _difficultyLevel = difficultyLevel;
+
             InitializeComponent();
-            _vm = vm;
-            _levelDifficulty = levelDifficulty;
         }
+
+        public string SelectedSetNumber { get; private set; }
 
         private void btnOk_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 string setNumber = txtSet.Text.Trim();
-                if (string.IsNullOrWhiteSpace(setNumber) == false)
+                if (!string.IsNullOrWhiteSpace(setNumber))
                 {
                     //TODO:Check the errors.
                     setNumber = setNumber.PadLeft(2, '0');
-                    _vm.GameSetClicked(setNumber);
+
+                    int gameSetPlayedCount = _viewModel.GetGameSetPlayedCount(_difficultyLevel, setNumber);
+                    if (gameSetPlayedCount > 0 && IsUserAcceptedPlayAnotherSet(gameSetPlayedCount))
+                    {
+                        return;
+                    }
+
+                    SelectedSetNumber = setNumber;
+                    DialogResult = true;
                     this.Close();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                DialogResult = false;
                 MessageBox.Show(ex.Message);
             }
             finally
             {
-
+                
             }
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
+            DialogResult = false;
             this.Close();
         }
+
+        private bool IsUserAcceptedPlayAnotherSet(int gameSetPlayedCount)
+        {
+            string message = string.Format("You have already played this set {0} number of times’.  Do you want to play new set?", gameSetPlayedCount);
+            var answer = MessageBox.Show(message, "Confirm please:", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            return answer == MessageBoxResult.Yes;
+        } 
     }
 }

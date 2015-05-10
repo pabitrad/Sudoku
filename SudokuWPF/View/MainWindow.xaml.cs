@@ -10,6 +10,7 @@ using System.Windows.Input;
 using SudokuWPF.Model.Enums;
 using SudokuWPF.ViewModel;
 using System.Windows.Media;
+using SudokuWPF.ViewModel.GameGenerator;
 
 namespace SudokuWPF.View
 {
@@ -19,8 +20,6 @@ namespace SudokuWPF.View
     public partial class MainWindow : Window
     {
         #region . Variable Declarations .
-
-        string defaultPlayerName = string.Empty;
 
         Brush redBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
         Brush blackBrush = new SolidColorBrush(Color.FromRgb(0, 0, 0));
@@ -38,8 +37,6 @@ namespace SudokuWPF.View
         public MainWindow()
         {
             InitializeComponent();
-
-            defaultPlayerName = PlayerName.Text.Trim();
         }
 
         #endregion
@@ -100,7 +97,7 @@ namespace SudokuWPF.View
 
         private void btnNew_Click(object sender, RoutedEventArgs e)
         {
-            if (PlayerName.Text == defaultPlayerName)
+            if (string.IsNullOrWhiteSpace(ViewModel.PlayerName))
             {
                 MessageBox.Show("Enter Player Name.");
                 PlayerName.Focus();
@@ -155,43 +152,68 @@ namespace SudokuWPF.View
 
         private void btnBeginer_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel != null)
-                ViewModel.CurrentGameSetDifficulty = GameSetDifficulty.Beginer;
+            var vm = ViewModel;
+            GameSetDifficulty clickedLevel = GameSetDifficulty.Beginer;
+            if (vm.IsAlreadyPlayedLevel(clickedLevel) &&
+                !IsUserAcceptedPlayLevelAgain(clickedLevel))
+            {
+                return;
+            }
+
+            vm.CurrentGameSetDifficulty = clickedLevel;
             
             btnBeginer.Foreground = redBrush;
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = blackBrush;
 
-            showPickUpSetDialogBox(GameSetDifficulty.Beginer);
+            showPickUpSetDialogBox(clickedLevel);
         }
 
         private void btnModerate_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel != null)
-                ViewModel.CurrentGameSetDifficulty = GameSetDifficulty.Moderate;
+            var vm = ViewModel;
+            GameSetDifficulty clickedLevel = GameSetDifficulty.Moderate;
+            if (vm.IsAlreadyPlayedLevel(clickedLevel) &&
+                !IsUserAcceptedPlayLevelAgain(clickedLevel))
+            {
+                return;
+            }
+
+            vm.CurrentGameSetDifficulty = clickedLevel;
 
             btnBeginer.Foreground = blackBrush;
             btnModerate.Foreground = redBrush;
             btnAdvance.Foreground = blackBrush;
 
-            showPickUpSetDialogBox(GameSetDifficulty.Moderate);
+            showPickUpSetDialogBox(clickedLevel);
 
         }
 
         private void btnAdvance_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel != null)
-                ViewModel.CurrentGameSetDifficulty = GameSetDifficulty.Advance;
+            var vm = ViewModel;
+            GameSetDifficulty clickedLevel = GameSetDifficulty.Advance;
+            if (vm.IsAlreadyPlayedLevel(clickedLevel) &&
+                !IsUserAcceptedPlayLevelAgain(clickedLevel))
+            {
+                return;
+            }
+
+            vm.CurrentGameSetDifficulty = clickedLevel;
 
             btnBeginer.Foreground = blackBrush;
             btnModerate.Foreground = blackBrush;
             btnAdvance.Foreground = redBrush;
 
-            showPickUpSetDialogBox(GameSetDifficulty.Advance);
-
+            showPickUpSetDialogBox(clickedLevel);
         }
 
-
+        private bool IsUserAcceptedPlayLevelAgain(GameSetDifficulty level)
+        {
+            string message = string.Format("You had played {0} level before. Do you still like to play it again?", level);
+            var answer = MessageBox.Show(message, "Confirm please:", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            return answer == MessageBoxResult.Yes;
+        }
 
         private void btnAnswer_Click(object sender, RoutedEventArgs e)
         {
@@ -200,18 +222,19 @@ namespace SudokuWPF.View
 
 
             btnAnswer.Foreground = redBrush;
-
         }
 
-
-
-        private void showPickUpSetDialogBox(GameSetDifficulty levelDifficulty)
+        private void showPickUpSetDialogBox(GameSetDifficulty difficultyLevel)
         {
             PickupSet pickUpSet = null;
             try
             {
-                pickUpSet = new PickupSet(ViewModel, levelDifficulty);
-                pickUpSet.ShowDialog();
+                pickUpSet = new PickupSet(ViewModel, difficultyLevel);
+                bool? dialogResult = pickUpSet.ShowDialog();
+                if (dialogResult.HasValue && dialogResult.Value)
+                {
+                    ViewModel.GameSetClicked(pickUpSet.SelectedSetNumber);
+                }
             }
             finally
             {

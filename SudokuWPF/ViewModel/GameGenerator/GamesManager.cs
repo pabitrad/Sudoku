@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using SudokuWPF.Model;
 using SudokuWPF.Model.Enums;
 using SudokuWPF.Model.Structures;
@@ -82,12 +83,20 @@ namespace SudokuWPF.ViewModel.GameGenerator
             return _games[(int)level].GetGame;          // Get a game based on the specified difficulty level
         }
 
+        /// <summary>
+        /// Gets a game based on the specified difficulty level.
+        /// </summary>
+        /// <param name="level">Level of difficulty specified.</param>
+        /// <param name="setNumberString">Number of concrete set within specified difficulty level.</param>
+        /// <returns>A 2D CellClass array of the game.</returns>
         internal CellClass[,] GetGame(GameSetDifficulty level, string setNumberString)
         {
             string gameSetFileName = string.Format(Properties.Settings.Default.SetFileNameFormat, setNumberString);
-            string gameSetFilePath = Properties.Settings.Default.GameSetDirectory + "\\" + level + "\\" + gameSetFileName;
+            string gameSetFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() +
+                                     DataConst.GameSetFolderName + "\\" + level + "\\" + gameSetFileName;
             string gamSetAnswersFileName = string.Format(Properties.Settings.Default.SetAnswersFileNameFormat, setNumberString);
-            string gameSetAnswersFilePath = Properties.Settings.Default.AnswerSetDirectory + "\\" + level + "\\" + gamSetAnswersFileName;
+            string gameSetAnswersFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() +
+                                            DataConst.AnswerSetFolderName + "\\" + level + "\\" + gamSetAnswersFileName;
 
             string setSourceString = File.ReadAllText(gameSetFilePath);
             setSourceString = setSourceString.Replace("\r\n", " ");
@@ -133,6 +142,86 @@ namespace SudokuWPF.ViewModel.GameGenerator
                 cellsArray[cell.Col, cell.Row] = cell;
             }
             return cellsArray;
+        }
+
+        internal bool IsAlreadyPlayedLevel(string playerName, GameSetDifficulty difficultyLevel)
+        {
+            bool isLevelPlayed;
+            int setPlayedCount;
+            CheckAlreadyPlayedLevelAndSet(playerName, difficultyLevel, "1", out isLevelPlayed, out setPlayedCount);
+            return isLevelPlayed;
+        }
+
+        internal void CheckAlreadyPlayedLevelAndSet(
+             string playerName, GameSetDifficulty difficultyLevel, string setNumber, out bool isLevelPlayed, out int gameSetPlayedCount)
+        {
+            string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + DataConst.DataFileName;
+            var players = XDocument
+                .Load(dataFilePath)
+                .Element(DataConst.XmlSudokuElement)
+                .Elements(DataConst.XmlPlayerElement);
+            var specifiedPlayerElement = players.FirstOrDefault(
+                player => player.Attribute(DataConst.XmlPlayerNameAttr).Value == playerName);
+            if (specifiedPlayerElement == null)
+            {
+                isLevelPlayed = false;
+                gameSetPlayedCount = 0;
+                return;
+            }
+            var playedLevels = specifiedPlayerElement.Elements(DataConst.XmlDifficultyLevelElement);
+            var specifiedLevelElement = playedLevels.FirstOrDefault(
+                level => level.Attribute(DataConst.XmlDifficultyLevelNameAttr).Value == difficultyLevel.ToString());
+            if (specifiedLevelElement == null)
+            {
+                isLevelPlayed = false;
+                gameSetPlayedCount = 0;
+                return;
+            }
+            var gameSets = specifiedLevelElement.Elements(DataConst.XmlGameSetElement);
+            var specifiedSetElement = gameSets.FirstOrDefault(
+                set => int.Parse(set.Attribute(DataConst.XmlGameSetNumberAttr).Value) == int.Parse(setNumber));
+            if (specifiedSetElement == null)
+            {
+                isLevelPlayed = true;
+                gameSetPlayedCount = 0;
+                return;
+            }
+            isLevelPlayed = true;
+            gameSetPlayedCount = int.Parse(specifiedSetElement.Attribute(DataConst.XmlGameSetPlayedCountAttr).Value);
+        }
+
+        internal void IncrementGameSetPlayedCount(string playerName, GameSetDifficulty difficultyLevel, string setNumber)
+        {
+            string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + DataConst.DataFileName;
+            var dataBaseDoc = XDocument.Load(dataFilePath);
+            var playerElement = dataBaseDoc.Root.Elements(DataConst.XmlPlayerElement)
+                .FirstOrDefault(element => element.Attribute(DataConst.XmlPlayerNameAttr).Value == playerName);
+            if (playerElement == null)
+            {
+                playerElement = new XElement(DataConst.XmlPlayerElement, new XAttribute(DataConst.XmlPlayerNameAttr, playerName));
+                dataBaseDoc.Root.Add(playerElement);
+            }
+            string specifiedLevel = difficultyLevel.ToString();
+            var level = playerElement.Elements(DataConst.XmlDifficultyLevelElement)
+                .FirstOrDefault(element => element.Attribute(DataConst.XmlDifficultyLevelNameAttr).Value == specifiedLevel);
+            if (level == null)
+            {
+                level = new XElement(DataConst.XmlDifficultyLevelElement, new XAttribute(DataConst.XmlDifficultyLevelNameAttr, specifiedLevel));
+                playerElement.Add(level);
+            }
+            int setNumberInt = int.Parse(setNumber);
+            var gameSet = level.Elements(DataConst.XmlGameSetElement)
+                .FirstOrDefault(element => int.Parse(element.Attribute(DataConst.XmlGameSetNumberAttr).Value) == setNumberInt);
+            if (gameSet == null)
+            {
+                gameSet = new XElement(DataConst.XmlGameSetElement,
+                    new XAttribute(DataConst.XmlGameSetNumberAttr, setNumberInt),
+                    new XAttribute(DataConst.XmlGameSetPlayedCountAttr, 0));
+                level.Add(gameSet);
+            }
+            int currentPlayedCount = int.Parse(gameSet.Attribute(DataConst.XmlGameSetPlayedCountAttr).Value);
+            gameSet.SetAttributeValue(DataConst.XmlGameSetPlayedCountAttr, ++currentPlayedCount);
+            dataBaseDoc.Save(dataFilePath);
         }
 
         /// <summary>

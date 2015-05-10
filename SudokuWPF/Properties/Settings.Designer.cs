@@ -145,18 +145,6 @@ namespace SudokuWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Database\\Game Set")]
-        public string GameSetDirectory {
-            get {
-                return ((string)(this["GameSetDirectory"]));
-            }
-            set {
-                this["GameSetDirectory"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("eSet{0}.txt")]
         public string SetFileNameFormat {
             get {
@@ -181,13 +169,13 @@ namespace SudokuWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Database\\Answer Set")]
-        public string AnswerSetDirectory {
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Database")]
+        public string DatabaseDirectory {
             get {
-                return ((string)(this["AnswerSetDirectory"]));
+                return ((string)(this["DatabaseDirectory"]));
             }
             set {
-                this["AnswerSetDirectory"] = value;
+                this["DatabaseDirectory"] = value;
             }
         }
     }

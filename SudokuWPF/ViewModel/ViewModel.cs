@@ -51,6 +51,8 @@ namespace SudokuWPF.ViewModel
         private bool _isShowNotes;
         private string _gameTimeElapsed;
         private InputPadStateEnum? _selectedPadState;
+        private string _currentPlayerName;
+        private string _playerName;
 
         #endregion
 
@@ -929,6 +931,16 @@ namespace SudokuWPF.ViewModel
 
         #region . Properties: Public Read/Write .
 
+        public string PlayerName
+        {
+            get { return _playerName; }
+            set
+            {
+                _playerName = value;
+                OnPropertyChanged();
+            }
+        }
+
         public GameSetDifficulty CurrentGameSetDifficulty { get; set; }
 
         public InputPadStateEnum? SelectedPadState
@@ -1087,6 +1099,19 @@ namespace SudokuWPF.ViewModel
         #endregion
 
         #region . Methods: View Form event methods .
+
+        internal bool IsAlreadyPlayedLevel(GameSetDifficulty difficultyLevel)
+        {
+            return _games.IsAlreadyPlayedLevel(PlayerName, difficultyLevel);
+        }
+
+        internal int GetGameSetPlayedCount(GameSetDifficulty difficultyLevel, string setNumber)
+        {
+            bool isLevelPlayed;
+            int gameSetPlayedCount;
+            _games.CheckAlreadyPlayedLevelAndSet(PlayerName, difficultyLevel, setNumber, out isLevelPlayed, out gameSetPlayedCount);
+            return gameSetPlayedCount;
+        }
 
         /// <summary>
         /// Process the Close button click.
@@ -1264,6 +1289,8 @@ namespace SudokuWPF.ViewModel
                 EnableGameControls(true, true); 
                 IsShowGameGrid = true;
                 UpdateEmptyCount();
+
+                _games.IncrementGameSetPlayedCount(PlayerName, CurrentGameSetDifficulty, setNumberString);
             }
         }
 

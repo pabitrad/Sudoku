@@ -76,6 +76,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DataConst.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="View\PickupSet.xaml.cs">
       <DependentUpon>PickupSet.xaml</DependentUpon>
     </Compile>
