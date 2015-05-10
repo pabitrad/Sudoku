@@ -27,6 +27,7 @@ namespace SudokuWPF.Model.Structures
         private NoteState[] _notes = new NoteState[9];              // Array to hold the state of the notes for this cell.
         private Int32 _userAnswer;                                  // Holds the user's answer.
         private CellStateEnum _cellState;                           // Holds the state of this cell.
+        private bool _isDuplicationHighlighted;
 
         #endregion
 
@@ -106,12 +107,28 @@ namespace SudokuWPF.Model.Structures
                         CellState = CellStateEnum.UserInputIncorrect;       // No, set the state to incorrect.
                     OnPropertyChanged();                                    // Raise a property changed event.
                 }
+                else if (value == 0)
+                {
+                    _userAnswer = 0;
+                    CellState = CellStateEnum.Blank;
+                    OnPropertyChanged();
+                }
             }
         }
 
         #endregion
 
         #region . Properties: Public Read-only .
+
+        public bool IsDuplicationHighlighted
+        {
+            get { return _isDuplicationHighlighted; }
+            set
+            {
+                _isDuplicationHighlighted = value;
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Gets this cell's answer.

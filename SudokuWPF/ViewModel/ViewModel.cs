@@ -53,6 +53,7 @@ namespace SudokuWPF.ViewModel
         private InputPadStateEnum? _selectedPadState;
         private string _currentPlayerName;
         private string _playerName;
+        private bool _isDuplicatedNumbersHighlighted;
 
         #endregion
 
@@ -931,6 +932,16 @@ namespace SudokuWPF.ViewModel
 
         #region . Properties: Public Read/Write .
 
+        public bool IsDuplicatedNumbersHighlighted
+        {
+            get { return _isDuplicatedNumbersHighlighted; }
+            set
+            {
+                _isDuplicatedNumbersHighlighted = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string PlayerName
         {
             get { return _playerName; }
@@ -1442,23 +1453,39 @@ namespace SudokuWPF.ViewModel
             {
                 return;
             }
-            if (!IsPadStateApplicable(col, row, SelectedPadState.Value))
+            var padState = SelectedPadState.Value;
+            CellClass targetCell = _model[col, row];
+
+            int userDuplicatedNumber;
+            var duplicatedCells = GetDuplicatedCells(col, row, padState, out userDuplicatedNumber);
+            if (duplicatedCells.Count > 0)
             {
+                int oldUserNumber = targetCell.UserAnswer;
+                targetCell.UserAnswer = userDuplicatedNumber;
+                duplicatedCells.ForEach(cell => cell.IsDuplicationHighlighted = true);
+
+                IsDuplicatedNumbersHighlighted = true;
+
+                targetCell.UserAnswer = oldUserNumber;
+                duplicatedCells.ForEach(cell => cell.IsDuplicationHighlighted = false);
+
+                IsDuplicatedNumbersHighlighted = false;
                 return;
             }
-            if (IsValidGame() && (_model[col, row].CellState != CellStateEnum.Answer))
+            if (IsValidGame() && (targetCell.CellState != CellStateEnum.Answer))
             {
                 ProcessNumberPad(col, row, SelectedPadState.Value); 
             }
             SelectedPadState = null;
         }
 
-        public bool IsPadStateApplicable(Int32 col, Int32 row, InputPadStateEnum padState)
+        public List<CellClass> GetDuplicatedCells(Int32 col, Int32 row, InputPadStateEnum padState, out int userNumber)
         {
             var appliedNumber = GetNumberIntOrNull(padState);
             if (appliedNumber == null)
             {
-                return true;
+                userNumber = 0;
+                return new List<CellClass>();
             }
             var isCellMatchAppliedNumber = new Predicate<CellClass>(
                 cell => cell != null &&
@@ -1466,13 +1493,15 @@ namespace SudokuWPF.ViewModel
                         cell.CellState != CellStateEnum.Hint &&
                         (cell.Answer == appliedNumber |
                          cell.UserAnswer == appliedNumber));
+
+            var duplicatedCells = new List<CellClass>();
             //check col for number duplication
             for (int rowIndex = 0; rowIndex < Common.BorderSide; rowIndex++)
             {
                 var cell = _model[col, rowIndex];
                 if (cell.Row != row && isCellMatchAppliedNumber(cell))
                 {
-                    return false;
+                    duplicatedCells.Add(cell);
                 }
             }
             //check row for number duplication
@@ -1481,7 +1510,7 @@ namespace SudokuWPF.ViewModel
                 var cell = _model[colIndex, row];
                 if (cell.Col != col && isCellMatchAppliedNumber(cell))
                 {
-                    return false;
+                    duplicatedCells.Add(cell);
                 }
             }
             //check 3x3 square
@@ -1489,10 +1518,15 @@ namespace SudokuWPF.ViewModel
             {
                 if ((cell.Col != col || cell.Row != row) && isCellMatchAppliedNumber(cell))
                 {
-                    return false;
+                    duplicatedCells.Add(cell);
                 }
             }
-            return true;
+            if (duplicatedCells.Count > 0)
+            {
+                duplicatedCells.Add(_model[col, row]);
+            }
+            userNumber = appliedNumber.Value;
+            return duplicatedCells;
         }
 
         private void ProcessNumberPad(Int32 col, Int32 row, InputPadStateEnum value)

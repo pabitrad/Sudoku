@@ -21,6 +21,8 @@ namespace SudokuWPF.View
             _difficultyLevel = difficultyLevel;
 
             InitializeComponent();
+
+            txtSet.Focus();
         }
 
         public string SelectedSetNumber { get; private set; }

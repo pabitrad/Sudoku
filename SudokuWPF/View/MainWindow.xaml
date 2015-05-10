@@ -168,6 +168,9 @@
                 <Trigger Property="IsMouseDirectlyOver" Value="True">
                     <Setter Property="Background" Value="LightBlue" />
                 </Trigger>
+                <DataTrigger Binding="{Binding IsDuplicationHighlighted}" Value="True">
+                    <Setter Property="Background" Value="Pink"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 

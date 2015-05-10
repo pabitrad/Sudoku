@@ -834,7 +834,7 @@ namespace SudokuWPF.View
 
         #endregion
 
-        private void HandleViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void HandleViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (ViewModel == null)
             {
@@ -846,6 +846,17 @@ namespace SudokuWPF.View
                 {
                     _selectedInputControlButton.IsChecked = false;
                     _selectedInputControlButton = null;
+                }
+            }
+
+            if (e.PropertyName == "IsDuplicatedNumbersHighlighted")
+            {
+                if (ViewModel.IsDuplicatedNumbersHighlighted)
+                {
+                    MessageBox.Show(
+                        "It is duplicates other numbers in same column/row or 3x3 square.",
+                        "Not allowed",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
