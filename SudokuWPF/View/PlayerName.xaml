@@ -1,0 +1,11 @@
+﻿<Window x:Class="SudokuWPF.View.PlayerName"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Player Name" Height="180" Width="310.15">
+    <WrapPanel>
+        <Label Content="Please Enter Player Name:" HorizontalAlignment="Left" Margin="50,23,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+        <TextBox x:Name="txtPlayerName" Width="192" Margin="50,10,0,0" Height="25" FontWeight="Bold" FontSize="15"/>
+        <Button x:Name="btnOk" Content="OK" Width="75" Margin="50, 20,0,0" Click="btnOk_Click"/>
+        <Button Content="Cancel" Width="75" Margin="40, 20,0,0" Click="btnCancel_Click"/>
+    </WrapPanel>
+</Window>

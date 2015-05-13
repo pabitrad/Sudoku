@@ -78,8 +78,14 @@
     </ApplicationDefinition>
     <Compile Include="DataConst.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="View\PickupLevel.xaml.cs">
+      <DependentUpon>PickupLevel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\PickupSet.xaml.cs">
       <DependentUpon>PickupSet.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\PlayerName.cs">
+      <SubType>Code</SubType>
     </Compile>
     <Page Include="View\AboutBox.xaml">
       <SubType>Designer</SubType>
@@ -141,7 +147,15 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\PickupLevel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\PickupSet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\PlayerName.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

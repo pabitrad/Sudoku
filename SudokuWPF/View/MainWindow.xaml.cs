@@ -26,7 +26,9 @@ namespace SudokuWPF.View
 
         private ViewModelClass _viewModel;
         private ToggleButton _selectedInputControlButton = null;
-        
+
+        private string _defaultPlayerName = string.Empty;
+
         #endregion
 
         #region . Constructors .
@@ -83,6 +85,8 @@ namespace SudokuWPF.View
         private void OnLoad(object sender, RoutedEventArgs e)
         {
             ViewModel.StartClicked();
+
+            _defaultPlayerName = PlayerName.Content.ToString().Trim();
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
@@ -97,18 +101,38 @@ namespace SudokuWPF.View
 
         private void btnNew_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(ViewModel.PlayerName))
+            PlayerName playerName = null;
+            try
             {
-                MessageBox.Show("Enter Player Name.");
-                PlayerName.Focus();
-                return;
+                if (PlayerName.Content.ToString().Trim() == _defaultPlayerName)
+                {
+                    playerName = new PlayerName();
+                    playerName.Owner = this;
+                    playerName.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    bool? dialogResult = playerName.ShowDialog();
+                    if (dialogResult.HasValue && dialogResult.Value)
+                    {
+                        this.PlayerName.Content = playerName.PName;
+                        ViewModel.PlayerName = playerName.PName;
+
+                        ShowPickupLeveldialog();
+                    }
+                }
+                else
+                {
+                    ShowPickupLeveldialog();
+                }
+            }
+            finally
+            {
+                playerName = null;
             }
 
-            if (ViewModel != null)
-            {
-                MessageBox.Show("Please pick a level of difficulty.");
-                ViewModel.NewClicked();
-            }
+            //if (ViewModel != null)
+            //{
+            //    MessageBox.Show("Please pick a level of difficulty.");
+            //    ViewModel.NewClicked();
+            //}
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
@@ -124,6 +148,24 @@ namespace SudokuWPF.View
             //{
             //    ViewModel.StartClicked();
             //}
+        }
+
+        private void ShowPickupLeveldialog()
+        {
+            PickupLevel pickupLevel = null;
+            try
+            {
+                pickupLevel = new PickupLevel(ViewModel);
+                pickupLevel.Owner = this;
+                pickupLevel.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                bool? dialogResult = pickupLevel.ShowDialog();
+
+                activateDifficultyLevel(pickupLevel.Difficultylevel);
+            }
+            finally
+            {
+                pickupLevel = null;
+            }            
         }
 
         private void btnReset_Click(object sender, RoutedEventArgs e)
@@ -162,9 +204,9 @@ namespace SudokuWPF.View
 
             vm.CurrentGameSetDifficulty = clickedLevel;
             
-            btnBeginer.Foreground = redBrush;
-            btnModerate.Foreground = blackBrush;
-            btnAdvance.Foreground = blackBrush;
+            //btnBeginer.Foreground = redBrush;
+            //btnModerate.Foreground = blackBrush;
+            //btnAdvance.Foreground = blackBrush;
 
             showPickUpSetDialogBox(clickedLevel);
         }
@@ -181,9 +223,9 @@ namespace SudokuWPF.View
 
             vm.CurrentGameSetDifficulty = clickedLevel;
 
-            btnBeginer.Foreground = blackBrush;
-            btnModerate.Foreground = redBrush;
-            btnAdvance.Foreground = blackBrush;
+            //btnBeginer.Foreground = blackBrush;
+            //btnModerate.Foreground = redBrush;
+            //btnAdvance.Foreground = blackBrush;
 
             showPickUpSetDialogBox(clickedLevel);
 
@@ -201,9 +243,9 @@ namespace SudokuWPF.View
 
             vm.CurrentGameSetDifficulty = clickedLevel;
 
-            btnBeginer.Foreground = blackBrush;
-            btnModerate.Foreground = blackBrush;
-            btnAdvance.Foreground = redBrush;
+            //btnBeginer.Foreground = blackBrush;
+            //btnModerate.Foreground = blackBrush;
+            //btnAdvance.Foreground = redBrush;
 
             showPickUpSetDialogBox(clickedLevel);
         }
@@ -226,6 +268,8 @@ namespace SudokuWPF.View
 
         private void showPickUpSetDialogBox(GameSetDifficulty difficultyLevel)
         {
+            activateDifficultyLevel(difficultyLevel);
+
             PickupSet pickUpSet = null;
             try
             {
@@ -241,6 +285,28 @@ namespace SudokuWPF.View
             finally
             {
                 pickUpSet = null;
+            }
+        }
+
+        private void activateDifficultyLevel(GameSetDifficulty difficultyLevel)
+        {
+            btnBeginer.Foreground = blackBrush;
+            btnModerate.Foreground = blackBrush;
+            btnAdvance.Foreground = blackBrush;
+
+            switch (difficultyLevel)
+            {
+                case GameSetDifficulty.Beginer:
+                    btnBeginer.Foreground = redBrush;
+                    break;
+
+                case GameSetDifficulty.Moderate:
+                    btnModerate.Foreground = redBrush;
+                    break;
+
+                case GameSetDifficulty.Advance:
+                    btnAdvance.Foreground = redBrush;
+                    break;
             }
         }
 
@@ -263,6 +329,11 @@ namespace SudokuWPF.View
             //}
         }
 
+        private void btnLastGame_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel != null)
+                ViewModel.LastGame();
+        }
         //private void enablePlaySets(bool enablePlaySets)
         //{
         //    foreach(Button btnSet in PlaySets.Children)

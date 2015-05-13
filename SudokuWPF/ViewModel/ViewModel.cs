@@ -1224,17 +1224,21 @@ namespace SudokuWPF.ViewModel
 
         private bool CloseClick()
         {
-            if (GameInProgress)                                     // Any game in progress?
-            {                                                       // Yes, ask the user what they want to do
-                MessageBoxResult iResults = MessageBox.Show("There is a game in progress.  Are you sure you want to quit?", "Sudoku", MessageBoxButton.YesNo);
-                if (iResults == MessageBoxResult.Yes)               // User really wants to quit?
-                    StopGame();                                     // Yes, stop the game
-                else
-                    return true;                                    // No, user doesn't want to quit so return True
-            }
-            else
-                StopGame();                                         // No game in progress, stop the game
-            return false;                                           // Return false
+            StopGame();                                     // Yes, stop the game
+
+            return true;
+
+            //if (GameInProgress)                                     // Any game in progress?
+            //{                                                       // Yes, ask the user what they want to do
+            //    MessageBoxResult iResults = MessageBox.Show("There is a game in progress.  Are you sure you want to quit?", "Sudoku", MessageBoxButton.YesNo);
+            //    if (iResults == MessageBoxResult.Yes)               // User really wants to quit?
+            //        StopGame();                                     // Yes, stop the game
+            //    else
+            //        return true;                                    // No, user doesn't want to quit so return True
+            //}
+            //else
+            //    StopGame();                                         // No game in progress, stop the game
+            //return false;                                           // Return false
         }
 
         private void StopGame()
@@ -1431,14 +1435,27 @@ namespace SudokuWPF.ViewModel
                     OnPropertyChanged(item.CellName);               // Raise the property change
         }
 
+        public void LastGame()
+        {
+            if (IsValidGame())                                      // Is there a valid game?
+            {
+                ClearForm();                                    // Yes, clear the form
+                _timer.ResetTimer();                                // Reset the timer
+                _model.ResetPuzzle();                               // Reset the puzzle
+                UpdateEmptyCount();                                 // Update the empty count status
+            }
+        }
+
         private void ResetGame()
         {
             if (IsValidGame())                                      // Is there a valid game?
             {
-                ClearForm();                                        // Yes, clear the form
+                ClearForm();                                   // Yes, clear the form
+                //_games.re
                 _timer.ResetTimer();                                // Reset the timer
-                _model.ResetPuzzle();                               // Reset the puzzle
+                _model.ResetBoard();                                // Reset the puzzle
                 UpdateEmptyCount();                                 // Update the empty count status
+                GameInProgress = false;
             }
         }
 

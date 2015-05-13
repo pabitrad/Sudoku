@@ -657,7 +657,7 @@
                   IsEditable="False"
                   IsReadOnly="True"
                   />-->
-                <TextBox
+                <!--<TextBox
                     Name="PlayerName" 
                     Text="{Binding PlayerName, TargetNullValue='ENTER PLAYER NAME'}" 
                     Width="170" Height="30" 
@@ -667,7 +667,11 @@
                     Margin="20, 20, 0, 0" 
                     FontWeight="Bold"
                     >
-                </TextBox>
+                </TextBox>-->
+                <Label Name="PlayerName" Content="Player Name" Width="170" Height="35" FontWeight="Bold" FontSize="14"
+                       HorizontalContentAlignment="Center" VerticalAlignment="Center" Foreground="Brown" Background="LightGray" Margin="20, 30, 0, 0">
+                </Label>
+
                 <!--<Label HorizontalAlignment="Left"
                Height="39" 
                VerticalAlignment="Top"
@@ -688,7 +692,7 @@
                 	Click="btnReset_Click" Margin="20, 10, 0, 0"/>
                 <Button Content="LAST GAME" Width="170" Height="35" FontWeight="Bold" FontSize="14"
                 Style="{StaticResource EnableGameButtonStyle}"
-                Click="btnReset_Click"
+                Click="btnLastGame_Click"
                 Margin="20, 10, 0, 0"/>
 
                 <Label Content="LEVEL OF DIFFICULTY" Width="170" Height="35" FontWeight="Bold" FontSize="14"

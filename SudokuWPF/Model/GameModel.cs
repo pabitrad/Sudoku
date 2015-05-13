@@ -110,6 +110,22 @@ namespace SudokuWPF.Model
         /// <summary>
         /// Reset the puzzle state.
         /// </summary>
+        internal void ResetBoard()
+        {
+            if (_cells != null)                                         // Do we have a game stored?
+            {                                                           // Yes.
+                for (Int32 i = 0; i < CellList.Count; i++)            // Loop through the cells in the puzzle.
+                {
+                    CellList[i].CellState = CellStateEnum.Blank;    // Then reset the state to Blank.
+                    CellList[i].UserAnswer = 0;                     // Clear out the user's answer.
+                }
+                CountEmpties();                                         // Done reseting the game, now count the empty cells.
+            }
+        }
+
+        /// <summary>
+        /// Reset the puzzle state.
+        /// </summary>
         internal void ResetPuzzle()
         {
             if (_cells != null)                                         // Do we have a game stored?
