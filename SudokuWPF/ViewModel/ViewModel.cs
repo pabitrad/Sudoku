@@ -1470,30 +1470,44 @@ namespace SudokuWPF.ViewModel
             {
                 return;
             }
-            var padState = SelectedPadState.Value;
-            CellClass targetCell = _model[col, row];
-
-            int userDuplicatedNumber;
-            var duplicatedCells = GetDuplicatedCells(col, row, padState, out userDuplicatedNumber);
-            if (duplicatedCells.Count > 0)
+            if (!IsValidGame())
             {
-                int oldUserNumber = targetCell.UserAnswer;
-                targetCell.UserAnswer = userDuplicatedNumber;
-                duplicatedCells.ForEach(cell => cell.IsDuplicationHighlighted = true);
-
-                IsDuplicatedNumbersHighlighted = true;
-
-                targetCell.UserAnswer = oldUserNumber;
-                duplicatedCells.ForEach(cell => cell.IsDuplicationHighlighted = false);
-
-                IsDuplicatedNumbersHighlighted = false;
+                SelectedPadState = null;
                 return;
             }
-            if (IsValidGame() && (targetCell.CellState != CellStateEnum.Answer))
+
+            InputPadStateEnum padState = SelectedPadState.Value;
+            CellClass targetCell = _model[col, row];
+            if (targetCell.CellState != CellStateEnum.Answer)
             {
-                ProcessNumberPad(col, row, SelectedPadState.Value); 
+                int userDuplicatedNumber;
+                var duplicatedCells = GetDuplicatedCells(col, row, padState, out userDuplicatedNumber);
+                if (duplicatedCells.Count > 0)
+                {
+                    int oldUserNumber = targetCell.UserAnswer;
+                    targetCell.UserAnswer = userDuplicatedNumber;
+                    duplicatedCells.ForEach(cell => cell.IsDuplicationHighlighted = true);
+
+                    IsDuplicatedNumbersHighlighted = true;
+
+                    targetCell.UserAnswer = oldUserNumber;
+                    duplicatedCells.ForEach(cell => cell.IsDuplicationHighlighted = false);
+
+                    IsDuplicatedNumbersHighlighted = false;
+                    return;
+                }
+
+                ProcessNumberPad(col, row, SelectedPadState.Value);
+                SelectedPadState = null;
             }
-            SelectedPadState = null;
+            else if (padState == InputPadStateEnum.ClearRaised)
+            {
+                MessageBox.Show("Can not remove system input.", "Sorry", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Invalid Input.", "Sorry", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         public List<CellClass> GetDuplicatedCells(Int32 col, Int32 row, InputPadStateEnum padState, out int userNumber)
