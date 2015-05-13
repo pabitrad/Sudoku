@@ -22,9 +22,11 @@ namespace SudokuWPF.Model.Structures
     {
         #region . Variables, constants, and other declarations .
 
+        private const int NOTES_COUNT = 9;
+
         #region . Variables .
 
-        private NoteState[] _notes = new NoteState[9];              // Array to hold the state of the notes for this cell.
+        private NoteState[] _notes = new NoteState[NOTES_COUNT];              // Array to hold the state of the notes for this cell.
         private Int32 _userAnswer;                                  // Holds the user's answer.
         private CellStateEnum _cellState;                           // Holds the state of this cell.
         private bool _isDuplicationHighlighted;
@@ -64,6 +66,14 @@ namespace SudokuWPF.Model.Structures
             CellIndex = new CellIndex(index);           // Instantiate a new CellIndex class and save it.
             Answer = answer;                            // Save the answer.
             CellState = CellStateEnum.Answer;           // Set the cell's state to Answer.
+        }
+
+        /// <summary>
+        /// Creates uninited instance for Clone method.
+        /// </summary>
+        private CellClass()
+        {
+            /*DO NOTHING*/
         }
 
         #endregion
@@ -206,7 +216,7 @@ namespace SudokuWPF.Model.Structures
         /// </summary>
         internal void ClearNotes()
         {
-            for (Int32 i = 0; i < 9; i++)                           // Loop through the array.
+            for (Int32 i = 0; i < NOTES_COUNT; i++)                           // Loop through the array.
                 if (_notes[i] == null)                              // Is the array element is null?
                     _notes[i] = new NoteState(i + 1);               // Yes, instantiate a new element.
                 else
@@ -364,5 +374,26 @@ namespace SudokuWPF.Model.Structures
         }
 
         #endregion
+
+        internal CellClass Clone()
+        {
+            var thisCellIndex = this.CellIndex;
+            var clone = new CellClass
+            {
+                _cellState = this._cellState,
+                _userAnswer = this._userAnswer,
+                _isDuplicationHighlighted = this._isDuplicationHighlighted,
+                _notes = new NoteState[NOTES_COUNT],
+                Answer = this.Answer,
+                InvalidState = this.InvalidState,
+                CellIndex = thisCellIndex != null ? thisCellIndex.Clone() : null,
+            };
+            for (int i = 0; i < NOTES_COUNT; i++)
+            {
+                var thisNotes = this._notes[i];
+                clone._notes[i] = thisNotes != null ? thisNotes.Clone() : null;
+            }
+            return clone;
+        }
     }
 }

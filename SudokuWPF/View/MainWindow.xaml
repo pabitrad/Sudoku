@@ -684,9 +684,16 @@
                 <Button Content="NEW GAME" Name="btnNewGame" Width="170" Height="35"
                   Click="btnNew_Click" Margin="20, 20, 0, 0" FontWeight="Bold" FontSize="14"/>
 
-                <Button Content="UNDO" Width="170" Height="35" FontWeight="Bold" FontSize="14"
-                  Style="{StaticResource EnableGameButtonStyle}"
-                  Margin="20, 10, 0, 0"/>
+                <Button 
+                    Content="UNDO" 
+                    Width="170" 
+                    Height="35" 
+                    FontWeight="Bold" 
+                    FontSize="14"
+                    Style="{StaticResource EnableGameButtonStyle}"
+                    Margin="20, 10, 0, 0"
+                    Click="btnUndo_Click"
+                    />
                 <Button Content="RESET" Width="170" Height="35" FontWeight="Bold" FontSize="14"
                 	Style="{StaticResource EnableGameButtonStyle}"
                 	Click="btnReset_Click" Margin="20, 10, 0, 0"/>

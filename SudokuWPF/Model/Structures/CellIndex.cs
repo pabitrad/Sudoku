@@ -48,6 +48,14 @@ namespace SudokuWPF.Model.Structures
             }
         }
 
+        /// <summary>
+        /// Creates uninited instance for Clone method.
+        /// </summary>
+        private CellIndex()
+        {
+            /*DO NOTHING*/
+        }
+
         #endregion
 
         #region . Public Properties Read-only .
@@ -102,6 +110,16 @@ namespace SudokuWPF.Model.Structures
             if (uIndex != null)                                     // IS the input parameter null?
                 return (uIndex.Region == Region);                   // No, then check if the region is the same.
             return false;                                           // Yes, then return false.
+        }
+
+        internal CellIndex Clone()
+        {
+            return new CellIndex
+            {
+                Row = this.Row,
+                Column = this.Column,
+                Region = this.Region,
+            };
         }
 
         #endregion

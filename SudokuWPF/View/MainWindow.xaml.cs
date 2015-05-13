@@ -177,7 +177,8 @@ namespace SudokuWPF.View
 
         private void btnUndo_Click(object sender, RoutedEventArgs e)
         {
-            
+            if (ViewModel != null)
+                ViewModel.UndoClicked();
         }
 
         private void btnAbout_Click(object sender, RoutedEventArgs e)

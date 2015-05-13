@@ -51,6 +51,12 @@ namespace SudokuWPF.Model.Structures
                 throw new Exception("Invalid input.");                      // No, raise an exception.
         }
 
+        private NoteState(bool state, string stateValue)
+        {
+            _state = state;
+            _stateValue = stateValue;
+        }
+
         #endregion
 
         #region . Properties .
@@ -105,5 +111,10 @@ namespace SudokuWPF.Model.Structures
         }
 
         #endregion
+
+        internal NoteState Clone()
+        {
+            return new NoteState(_state, _stateValue);
+        }
     }
 }

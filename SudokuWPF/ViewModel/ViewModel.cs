@@ -1188,6 +1188,16 @@ namespace SudokuWPF.ViewModel
             ProcessCellClick(col, row);
         }
 
+        /// <summary>
+        /// Brings game state to previous move state.
+        /// </summary>
+        internal void UndoClicked()
+        {
+            _model.UndoToPrevMove();
+            UpdateAllCells();
+            UpdateEmptyCount();
+        }
+
         #endregion
 
         #region . Methods: Private .
@@ -1636,6 +1646,7 @@ namespace SudokuWPF.ViewModel
         {
             if (_model[col, row].CellState != CellStateEnum.Answer) // Is cell state Answer?
             {                                                       // No, then process it
+                _model.PrepareToNextMove();
                 if (UndoEmptyCount(_model[col, row]))               // Do we need to undo the empty count?
                     UpdateEmptyCount(1);                            // Yes, then increment the empty count
                 _model[col, row].CellState = CellStateEnum.Blank;   // Set the cell state to blank
@@ -1681,6 +1692,7 @@ namespace SudokuWPF.ViewModel
 
         private void ProcessAnswer(Int32 col, Int32 row, Int32 value)
         {
+            _model.PrepareToNextMove();
             _model[col, row].UserAnswer = value;                                // Save user's answer
             if (_model[col, row].CellState == CellStateEnum.UserInputCorrect)   // Is it correct?
             {

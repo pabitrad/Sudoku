@@ -24,6 +24,7 @@ namespace SudokuWPF.Model
 
         private CellClass[,] _cells;                            // Array of cells for the puzzle that is playing.
         private List<CellClass>[] _regionList;                  // Array of cells arranged by region.
+        private Stack<CellClass[,]> _undoStack; 
 
         #endregion
 
@@ -36,11 +37,6 @@ namespace SudokuWPF.Model
         internal GameModel(CellClass[,] cells)
         {
             InitClass(cells);                                   // Call the initialization routine.
-        }
-
-        internal GameModel(CellClass[,] cells, string setFile)
-        {
-            InitClass(cells);                          // Call the initialization routine.
         }
 
         #endregion
@@ -96,6 +92,46 @@ namespace SudokuWPF.Model
 
         #region . Methods: Public .
 
+        internal void PrepareToNextMove()
+        {
+            if (_cells == null)
+            {
+                return;
+            }
+            int cellsLengthX = _cells.GetLength(0);
+            int cellsLengthY = _cells.GetLength(1);
+            var backupCellsState = new CellClass[cellsLengthX, cellsLengthY];
+            for (int i = 0; i < cellsLengthX; i++)
+            {
+                for (int j = 0; j < cellsLengthY; j++)
+                {
+                    backupCellsState[i, j] = _cells[i, j].Clone();
+                }
+            }
+            _undoStack.Push(backupCellsState);
+        }
+
+        internal void UndoToPrevMove()
+        {
+            if (_cells == null || _undoStack.Count == 0)
+            {
+                return;
+            }
+            var prevMoveCells = _undoStack.Pop();
+            int cellsLengthX = _cells.GetLength(0);
+            int cellsLengthY = _cells.GetLength(1);
+            for (int i = 0; i < cellsLengthX; i++)
+            {
+                for (int j = 0; j < cellsLengthY; j++)
+                {
+                    _cells[i, j] = prevMoveCells[i, j];
+                }
+            }
+            InitRegionList();
+            ConvertToList();
+            CountEmpties();
+        }
+
         /// <summary>
         /// Compute the notes at the specified column and row.
         /// </summary>
@@ -112,6 +148,7 @@ namespace SudokuWPF.Model
         /// </summary>
         internal void ResetBoard()
         {
+            _undoStack.Clear();
             if (_cells != null)                                         // Do we have a game stored?
             {                                                           // Yes.
                 for (Int32 i = 0; i < CellList.Count; i++)            // Loop through the cells in the puzzle.
@@ -128,6 +165,7 @@ namespace SudokuWPF.Model
         /// </summary>
         internal void ResetPuzzle()
         {
+            _undoStack.Clear();
             if (_cells != null)                                         // Do we have a game stored?
             {                                                           // Yes.
                 for (Int32 i = 0; i < CellList.Count; i++)              // Loop through the cells in the puzzle.
@@ -213,6 +251,7 @@ namespace SudokuWPF.Model
                 ConvertToList();                                    // Convert the 2D array to a list.
                 GenerateAllNotes();                                 // Generate all notes for blank cells.
                 CountEmpties();                                     // Count number of empty cells.
+                _undoStack = new Stack<CellClass[,]>();
             }
         }
 

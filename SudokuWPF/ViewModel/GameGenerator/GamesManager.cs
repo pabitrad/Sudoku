@@ -226,16 +226,6 @@ namespace SudokuWPF.ViewModel.GameGenerator
             dataBaseDoc.Save(dataFilePath);
         }
 
-        private void EnsureDataFile()
-        {
-            string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + "\\" + DataConst.DataFileName;
-            if (!File.Exists(dataFilePath))
-            {
-                XDocument doc = new XDocument(new XElement(DataConst.XmlSudokuElement));
-                doc.Save(dataFilePath);
-            }
-        }
-
         /// <summary>
         /// Gets the number of games in the game queue of the specified level.
         /// </summary>
@@ -249,6 +239,16 @@ namespace SudokuWPF.ViewModel.GameGenerator
         #endregion
 
         #region . Methods: Private .
+
+        private void EnsureDataFile()
+        {
+            string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + "\\" + DataConst.DataFileName;
+            if (!File.Exists(dataFilePath))
+            {
+                XDocument doc = new XDocument(new XElement(DataConst.XmlSudokuElement));
+                doc.Save(dataFilePath);
+            }
+        }
 
         private void InitializeClass()
         {
