@@ -37,8 +37,10 @@ namespace SudokuWPF.View
                     //TODO:Check the errors.
                     setNumber = setNumber.PadLeft(2, '0');
 
-                    int gameSetPlayedCount = _viewModel.GetGameSetPlayedCount(_difficultyLevel, setNumber);
-                    if (gameSetPlayedCount > 0 && IsUserAcceptedPlayAnotherSet(gameSetPlayedCount))
+                    int gameSetPlayedCount;
+                    int gameSetWonCount;
+                    _viewModel.GetGameSetCounters(_difficultyLevel, setNumber, out gameSetPlayedCount, out gameSetWonCount);
+                    if (gameSetPlayedCount > 0 && IsUserAcceptedPlayAnotherSet(gameSetPlayedCount, gameSetWonCount))
                     {
                         return;
                     }
@@ -65,9 +67,18 @@ namespace SudokuWPF.View
             this.Close();
         }
 
-        private bool IsUserAcceptedPlayAnotherSet(int gameSetPlayedCount)
+        private bool IsUserAcceptedPlayAnotherSet(int gameSetPlayedCount, int gameSetWonCount)
         {
-            string message = string.Format("You have already played this set {0} number of times’.  Do you want to play new set?", gameSetPlayedCount);
+            string message = gameSetWonCount > 0 
+                ? string.Format(
+                "You have already won this set {0} number of times and attempted {1} numbers of times. " +
+                "Do you want to play another set?",
+                gameSetWonCount,
+                gameSetPlayedCount)
+                : string.Format(
+                "You have already attempted this set {0} numbers of times. " +
+                "Do you want to play another set?",
+                gameSetPlayedCount);
             var answer = MessageBox.Show(message, "Confirm please:", MessageBoxButton.YesNo, MessageBoxImage.Question);
             return answer == MessageBoxResult.Yes;
         } 

@@ -15,5 +15,6 @@
         internal const string XmlDifficultyLevelNameAttr = "Name";
         internal const string XmlGameSetNumberAttr = "Number";
         internal const string XmlGameSetPlayedCountAttr = "PlayedCount";
+        internal const string XmlGameSetWonCountAttr = "WonCount";
     }
 }

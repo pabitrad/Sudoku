@@ -148,12 +148,18 @@ namespace SudokuWPF.ViewModel.GameGenerator
         {
             bool isLevelPlayed;
             int setPlayedCount;
-            CheckAlreadyPlayedLevelAndSet(playerName, difficultyLevel, "1", out isLevelPlayed, out setPlayedCount);
+            int setWonCount;
+            CheckAlreadyPlayedLevelAndSet(playerName, difficultyLevel, "1", out isLevelPlayed, out setPlayedCount, out setWonCount);
             return isLevelPlayed;
         }
 
         internal void CheckAlreadyPlayedLevelAndSet(
-             string playerName, GameSetDifficulty difficultyLevel, string setNumber, out bool isLevelPlayed, out int gameSetPlayedCount)
+             string playerName,
+            GameSetDifficulty difficultyLevel, 
+            string setNumber, 
+            out bool isLevelPlayed, 
+            out int gameSetPlayedCount,
+            out int gameSetWonCount)
         {
             EnsureDataFile();
             string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + DataConst.DataFileName;
@@ -167,6 +173,7 @@ namespace SudokuWPF.ViewModel.GameGenerator
             {
                 isLevelPlayed = false;
                 gameSetPlayedCount = 0;
+                gameSetWonCount = 0;
                 return;
             }
             var playedLevels = specifiedPlayerElement.Elements(DataConst.XmlDifficultyLevelElement);
@@ -176,6 +183,7 @@ namespace SudokuWPF.ViewModel.GameGenerator
             {
                 isLevelPlayed = false;
                 gameSetPlayedCount = 0;
+                gameSetWonCount = 0;
                 return;
             }
             var gameSets = specifiedLevelElement.Elements(DataConst.XmlGameSetElement);
@@ -185,13 +193,20 @@ namespace SudokuWPF.ViewModel.GameGenerator
             {
                 isLevelPlayed = true;
                 gameSetPlayedCount = 0;
+                gameSetWonCount = 0;
                 return;
             }
             isLevelPlayed = true;
             gameSetPlayedCount = int.Parse(specifiedSetElement.Attribute(DataConst.XmlGameSetPlayedCountAttr).Value);
+            gameSetWonCount = int.Parse(specifiedSetElement.Attribute(DataConst.XmlGameSetWonCountAttr).Value);
         }
 
-        internal void IncrementGameSetPlayedCount(string playerName, GameSetDifficulty difficultyLevel, string setNumber)
+        internal void UpdateGameSetCounters(
+            string playerName, 
+            GameSetDifficulty difficultyLevel, 
+            string setNumber,
+            int playedCountModifier,
+            int wonCountModifier)
         {
             EnsureDataFile();
             string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + DataConst.DataFileName;
@@ -218,11 +233,22 @@ namespace SudokuWPF.ViewModel.GameGenerator
             {
                 gameSet = new XElement(DataConst.XmlGameSetElement,
                     new XAttribute(DataConst.XmlGameSetNumberAttr, setNumberInt),
-                    new XAttribute(DataConst.XmlGameSetPlayedCountAttr, 0));
+                    new XAttribute(DataConst.XmlGameSetPlayedCountAttr, 0),
+                    new XAttribute(DataConst.XmlGameSetWonCountAttr, 0));
                 level.Add(gameSet);
             }
-            int currentPlayedCount = int.Parse(gameSet.Attribute(DataConst.XmlGameSetPlayedCountAttr).Value);
-            gameSet.SetAttributeValue(DataConst.XmlGameSetPlayedCountAttr, ++currentPlayedCount);
+            if (playedCountModifier != 0)
+            {
+                int currentPlayedCount = int.Parse(gameSet.Attribute(DataConst.XmlGameSetPlayedCountAttr).Value);
+                currentPlayedCount += playedCountModifier;
+                gameSet.SetAttributeValue(DataConst.XmlGameSetPlayedCountAttr, currentPlayedCount);
+            }
+            if (wonCountModifier != 0)
+            {
+                int wonCount = int.Parse(gameSet.Attribute(DataConst.XmlGameSetWonCountAttr).Value);
+                wonCount += wonCountModifier;
+                gameSet.SetAttributeValue(DataConst.XmlGameSetWonCountAttr, wonCount);
+            }
             dataBaseDoc.Save(dataFilePath);
         }
 

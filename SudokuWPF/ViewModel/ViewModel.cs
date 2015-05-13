@@ -954,6 +954,8 @@ namespace SudokuWPF.ViewModel
 
         public GameSetDifficulty CurrentGameSetDifficulty { get; set; }
 
+        public string CurrentGameSet { get; set; }
+
         public InputPadStateEnum? SelectedPadState
         {
             get { return _selectedPadState; }
@@ -1116,12 +1118,21 @@ namespace SudokuWPF.ViewModel
             return _games.IsAlreadyPlayedLevel(PlayerName, difficultyLevel);
         }
 
-        internal int GetGameSetPlayedCount(GameSetDifficulty difficultyLevel, string setNumber)
+        internal void GetGameSetCounters(
+            GameSetDifficulty difficultyLevel, string setNumber, out int playedCount, out int wonCount)
         {
             bool isLevelPlayed;
             int gameSetPlayedCount;
-            _games.CheckAlreadyPlayedLevelAndSet(PlayerName, difficultyLevel, setNumber, out isLevelPlayed, out gameSetPlayedCount);
-            return gameSetPlayedCount;
+            int gameSetWonCount;
+            _games.CheckAlreadyPlayedLevelAndSet(
+                PlayerName, 
+                difficultyLevel, 
+                setNumber, 
+                out isLevelPlayed, 
+                out gameSetPlayedCount,
+                out gameSetWonCount);
+            playedCount = gameSetPlayedCount;
+            wonCount = gameSetWonCount;
         }
 
         /// <summary>
@@ -1307,6 +1318,7 @@ namespace SudokuWPF.ViewModel
             }
             if (isGameCreated)
             {
+                CurrentGameSet = setNumberString;
                 GameInProgress = true; 
                 ShowBoard(); 
                 _timer.StartTimer(); 
@@ -1314,8 +1326,6 @@ namespace SudokuWPF.ViewModel
                 EnableGameControls(true, true); 
                 IsShowGameGrid = true;
                 UpdateEmptyCount();
-
-                _games.IncrementGameSetPlayedCount(PlayerName, CurrentGameSetDifficulty, setNumberString);
             }
         }
 
@@ -1327,6 +1337,7 @@ namespace SudokuWPF.ViewModel
             ElapsedTime = "";                                       // Clear the elapsed time display
             if (bShowDialog)                                        // Do we show the puzzle complete dialog?
             {
+                _games.UpdateGameSetCounters(PlayerName, CurrentGameSetDifficulty, CurrentGameSet, 1, 1);
                 EnableGameControls(false, true);                    // Yes, disable the game controls, but show the game grid
                 StartButtonState = StartButtonStateEnum.Disable;    // Disable the start button
                 StatusMessage = "Puzzle complete!";                 // Set the status message
@@ -1335,6 +1346,7 @@ namespace SudokuWPF.ViewModel
             }
             else
             {                                                       // No, don't display the puzzle complete dialog
+                _games.UpdateGameSetCounters(PlayerName, CurrentGameSetDifficulty, CurrentGameSet, 1, 0);
                 EnableGameControls(false, false);                   // Disable the game controls and hide the game grid
                 StartButtonState = StartButtonStateEnum.Start;      // Set the start button state to "Start"
             }
@@ -1409,11 +1421,10 @@ namespace SudokuWPF.ViewModel
             PuzzleComplete = false;                                 // Clear the puzzle complete flag
         }
 
-        private void UpdateEmptyCount(Int32 count = 0)
+        private void UpdateEmptyCount()
         {
             if (IsValidGame())                                      // Is there a valid game?
             {
-                _model.EmptyCount += count;                         // Add the count
                 StatusMessage = string.Format("{0} empty cells out of 81.", _model.EmptyCount); // Display the count
                 if (_model.GameComplete)                            // Is the game done?
                     GameEnded(true);                                // Yes, run the game ended routine
@@ -1529,11 +1540,12 @@ namespace SudokuWPF.ViewModel
                 return new List<CellClass>();
             }
             var isCellMatchAppliedNumber = new Predicate<CellClass>(
-                cell => cell != null &&
-                        cell.CellState != CellStateEnum.Blank &&
-                        cell.CellState != CellStateEnum.Hint &&
-                        (cell.Answer == appliedNumber |
-                         cell.UserAnswer == appliedNumber));
+                cell => cell != null && (
+                    ((cell.CellState == CellStateEnum.UserInputCorrect ||
+                      cell.CellState == CellStateEnum.UserInputIncorrect) && cell.UserAnswer == appliedNumber)
+                    ||
+                    (cell.CellState == CellStateEnum.Answer && cell.Answer == appliedNumber)
+                    ));
 
             var duplicatedCells = new List<CellClass>();
             //check col for number duplication
@@ -1639,16 +1651,17 @@ namespace SudokuWPF.ViewModel
         private void ProcessHint(Int32 col, Int32 row)
         {
             _model[col, row].CellState = CellStateEnum.Hint;        // Set the cell state to Hint
-            UpdateEmptyCount(-1);                                   // Decrement the empty count
+            UpdateEmptyCount();                                   // Decrement the empty count
         }
 
         private void ProcessClearCell(Int32 col, Int32 row)
         {
-            if (_model[col, row].CellState != CellStateEnum.Answer) // Is cell state Answer?
+            if (_model[col, row].CellState != CellStateEnum.Answer &&
+                _model[col, row].CellState != CellStateEnum.Blank) 
             {                                                       // No, then process it
                 _model.PrepareToNextMove();
                 if (UndoEmptyCount(_model[col, row]))               // Do we need to undo the empty count?
-                    UpdateEmptyCount(1);                            // Yes, then increment the empty count
+                    UpdateEmptyCount();                            // Yes, then increment the empty count
                 _model[col, row].CellState = CellStateEnum.Blank;   // Set the cell state to blank
                 _model[col, row].UserAnswer = 0;                    // Clear out the user's answer
                 _model.ComputeNote(col, row);                       // Recompute notes
@@ -1692,12 +1705,16 @@ namespace SudokuWPF.ViewModel
 
         private void ProcessAnswer(Int32 col, Int32 row, Int32 value)
         {
+            if (_model[col, row].UserAnswer == value)
+            {
+                return;
+            }
             _model.PrepareToNextMove();
             _model[col, row].UserAnswer = value;                                // Save user's answer
             if (_model[col, row].CellState == CellStateEnum.UserInputCorrect)   // Is it correct?
             {
                 ScanNotes(col, row, value);                                     // Yes, turn off notes 
-                UpdateEmptyCount(-1);                                           // Update the empty count
+                UpdateEmptyCount();                                           // Update the empty count
             }
         }
 

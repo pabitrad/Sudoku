@@ -82,7 +82,15 @@ namespace SudokuWPF.Model
         /// <summary>
         /// Gets or sets the number of empty cells left in the puzzle.
         /// </summary>
-        internal Int32 EmptyCount { get; set; }
+        internal Int32 EmptyCount
+        {
+            get
+            {
+                return CellList != null
+                    ? CellList.FindAll(cell => cell.CellState == CellStateEnum.Blank).Count
+                    : Common.BorderSide * Common.BorderSide;
+            }
+        }
 
         #endregion
 
@@ -129,7 +137,6 @@ namespace SudokuWPF.Model
             }
             InitRegionList();
             ConvertToList();
-            CountEmpties();
         }
 
         /// <summary>
@@ -156,7 +163,6 @@ namespace SudokuWPF.Model
                     CellList[i].CellState = CellStateEnum.Blank;    // Then reset the state to Blank.
                     CellList[i].UserAnswer = 0;                     // Clear out the user's answer.
                 }
-                CountEmpties();                                         // Done reseting the game, now count the empty cells.
             }
         }
 
@@ -174,7 +180,6 @@ namespace SudokuWPF.Model
                         CellList[i].CellState = CellStateEnum.Blank;    // Then reset the state to Blank.
                         CellList[i].UserAnswer = 0;                     // Clear out the user's answer.
                     }
-                CountEmpties();                                         // Done reseting the game, now count the empty cells.
             }
         }
 
@@ -250,7 +255,6 @@ namespace SudokuWPF.Model
                 InitRegionList();                                   // Initialize the region list.
                 ConvertToList();                                    // Convert the 2D array to a list.
                 GenerateAllNotes();                                 // Generate all notes for blank cells.
-                CountEmpties();                                     // Count number of empty cells.
                 _undoStack = new Stack<CellClass[,]>();
             }
         }
@@ -307,14 +311,6 @@ namespace SudokuWPF.Model
         {
             if (sourceCell.CellState == CellStateEnum.Answer)           // Is the cell state Answer?
                 targetCell.Notes[sourceCell.Answer - 1].State = false;  // Yes, then turn off the note.
-        }
-
-        private void CountEmpties()
-        {
-            EmptyCount = 0;                                             // Zero the counter
-            foreach (CellClass item in CellList)                        // Loop through the list of cells
-                if (item.CellState == CellStateEnum.Blank)              // If the state is blank
-                    EmptyCount++;                                       // Then increment the count
         }
 
         #endregion
