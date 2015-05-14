@@ -197,8 +197,10 @@ namespace SudokuWPF.ViewModel.GameGenerator
                 return;
             }
             isLevelPlayed = true;
-            gameSetPlayedCount = int.Parse(specifiedSetElement.Attribute(DataConst.XmlGameSetPlayedCountAttr).Value);
-            gameSetWonCount = int.Parse(specifiedSetElement.Attribute(DataConst.XmlGameSetWonCountAttr).Value);
+            var gameSetPlayedCountAttr = specifiedSetElement.Attribute(DataConst.XmlGameSetPlayedCountAttr);
+            var gameSetWonCountAttr = specifiedSetElement.Attribute(DataConst.XmlGameSetWonCountAttr);
+            gameSetPlayedCount = gameSetPlayedCountAttr != null ? int.Parse(gameSetPlayedCountAttr.Value) : 0;
+            gameSetWonCount = gameSetWonCountAttr != null ? int.Parse(gameSetWonCountAttr.Value) : 0;
         }
 
         internal void UpdateGameSetCounters(
@@ -268,10 +270,15 @@ namespace SudokuWPF.ViewModel.GameGenerator
 
         private void EnsureDataFile()
         {
-            string dataFilePath = Properties.Settings.Default.DatabaseDirectory.EnsureSlash() + "\\" + DataConst.DataFileName;
+            string dataFileFolder = Properties.Settings.Default.DatabaseDirectory.EnsureSlash();
+            string dataFilePath =  dataFileFolder + DataConst.DataFileName;
             if (!File.Exists(dataFilePath))
             {
                 XDocument doc = new XDocument(new XElement(DataConst.XmlSudokuElement));
+                if (!Directory.Exists(dataFileFolder))
+                {
+                    Directory.CreateDirectory(dataFileFolder);
+                }
                 doc.Save(dataFilePath);
             }
         }
