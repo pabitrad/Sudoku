@@ -86,8 +86,7 @@ namespace SudokuWPF.ViewModel.GameGenerator
                 {
                     if (_rnd == null)                       // Check if the random object is null again
                     {                                       // It is so create a seed and create a new random class
-                        TimeSpan tsp = new TimeSpan(DateTime.Now.Ticks);
-                        Int32 seed = (int)(((tsp.TotalMilliseconds * 10000) % Int32.MaxValue) % 10000);
+                        int seed = GetSeed();
                         Debug.WriteLine("Random seed = {0}", seed);
                         _rnd = new Random(seed);
                     }
@@ -97,13 +96,26 @@ namespace SudokuWPF.ViewModel.GameGenerator
 
         private Int32 GetNextInt(Int32 min, Int32 max)
         {
-            if (_rnd == null)                               // If random object is null
-                lock (_instance)                            // Lock the instance object because other thread
-                { }                                         // is still probably creating the instance
-            lock (_rndLock)                                 // Obtain a lock on the random object
+            if (_rnd == null) // If random object is null
+                lock (_instance) // Lock the instance object because other thread
+                {
+                    _rnd = new Random(GetSeed());
+                } // is still probably creating the instance
+            lock (_rndLock) // Obtain a lock on the random object
             {
-                return _rnd.Next(min, max);                 // Return a random number between min and max
+                if (_rnd == null)
+                {
+                    _rnd = new Random(GetSeed());
+                }
+                return _rnd.Next(min, max); // Return a random number between min and max
             }
+        }
+
+        private Int32 GetSeed()
+        {
+            TimeSpan tsp = new TimeSpan(DateTime.Now.Ticks);
+            Int32 seed = (int) (((tsp.TotalMilliseconds * 10000) % Int32.MaxValue) % 10000);
+            return seed;
         }
 
         #endregion
